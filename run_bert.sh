@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 export CUDA_VISIBLE_DEVICES=0
-for((i=0;i<1;i++));
+for((i=0;i<5;i++));
 
 do
 python run_bert.py \
@@ -12,19 +12,19 @@ python run_bert.py \
 --data_dir ./data/data_$i \
 --output_dir ./model_bert$i \
 --max_seq_length 512 \
---split_num 1 \
+--split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
 --eval_steps 200 \
---per_gpu_train_batch_size 1 \
---gradient_accumulation_steps 1 \
---warmup_steps 500 \
+--per_gpu_train_batch_size 64 \
+--gradient_accumulation_steps 64 \
+--warmup_steps 100 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-6 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 4000
+--train_steps 1000
 
 done
 
