@@ -23,6 +23,7 @@ import logging
 import os
 import random
 import sys
+import tensorflow as tf
 from io import open
 import pandas as pd
 import numpy as np
@@ -307,7 +308,7 @@ def main():
         torch.distributed.init_process_group(backend='nccl')
         args.n_gpu = 1
     args.device = device
-    
+
     
     # Setup logging
     logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -326,9 +327,15 @@ def main():
         pass
     
     tokenizer = BertTokenizer.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case)
-    
-    
-    
+
+    tensorboard_log_dir = args.output_dir
+
+    loss_now = tf.placeholder(dtype=tf.float32, name='loss_now')
+    loss_evar = tf.placeholder(dtype=tf.float32, name='loss_evar')
+    train_loss = tf.summary.scalar('train_loss', loss_now)
+    dev_loss_evar = tf.summary.scalar('dev_loss_evar', loss_evar)
+    merged_dev = tf.summary.merge([train_loss, dev_loss_evar])
+
     config = BertConfig.from_pretrained(args.model_name_or_path, num_labels=3)
     
     # Prepare model
@@ -403,127 +410,137 @@ def main():
         bar = tqdm(range(num_train_optimization_steps),total=num_train_optimization_steps)
         train_dataloader=cycle(train_dataloader)
 
-        
-        for step in bar:
-            batch = next(train_dataloader)
-            batch = tuple(t.to(device) for t in batch)
-            input_ids, input_mask, segment_ids, label_ids = batch
-            loss = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
-            if args.n_gpu > 1:
-                loss = loss.mean() # mean() to average on multi-gpu.
-            if args.fp16 and args.loss_scale != 1.0:
-                loss = loss * args.loss_scale
-            if args.gradient_accumulation_steps > 1:
-                loss = loss / args.gradient_accumulation_steps
-            tr_loss += loss.item()
-            train_loss=round(tr_loss*args.gradient_accumulation_steps/(nb_tr_steps+1),4)
-            bar.set_description("loss {}".format(train_loss))
-            nb_tr_examples += input_ids.size(0)
-            nb_tr_steps += 1
+        with tf.Session() as sess:
+            summary_writer = tf.summary.FileWriter(tensorboard_log_dir, sess.graph)
+            sess.run(tf.global_variables_initializer())
 
-            if args.fp16:
-                optimizer.backward(loss)
-            else:
+            for step in bar:
+                batch = next(train_dataloader)
+                batch = tuple(t.to(device) for t in batch)
+                input_ids, input_mask, segment_ids, label_ids = batch
+                loss = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
+                loss_now_ = sess.run(merged_dev,
+                         feed_dict={loss_now: loss})
+                summary_writer.add_summary(loss_now_, step + 1)
+                if args.n_gpu > 1:
+                    loss = loss.mean() # mean() to average on multi-gpu.
+                if args.fp16 and args.loss_scale != 1.0:
+                    loss = loss * args.loss_scale
+                if args.gradient_accumulation_steps > 1:
+                    loss = loss / args.gradient_accumulation_steps
+                tr_loss += loss.item()
+                train_loss=round(tr_loss*args.gradient_accumulation_steps/(nb_tr_steps+1),4)
+                dev_loss_evar_ = sess.run(merged_dev,
+                         feed_dict={loss_evar: train_loss})
+                summary_writer.add_summary(dev_loss_evar_, step + 1)
+                bar.set_description("loss {}".format(train_loss))
+                nb_tr_examples += input_ids.size(0)
+                nb_tr_steps += 1
 
-                loss.backward()
-
-            if (nb_tr_steps + 1) % args.gradient_accumulation_steps == 0:
                 if args.fp16:
-                    # modify learning rate with special warm up BERT uses
-                    # if args.fp16 is False, BertAdam is used that handles this automatically
-                    lr_this_step = args.learning_rate * warmup_linear.get_lr(global_step, args.warmup_proportion)
-                    for param_group in optimizer.param_groups:
-                        param_group['lr'] = lr_this_step
-                scheduler.step()
-                optimizer.step()
-                optimizer.zero_grad()
-                global_step += 1
+                    optimizer.backward(loss)
+                else:
+
+                    loss.backward()
+
+                if (nb_tr_steps + 1) % args.gradient_accumulation_steps == 0:
+                    if args.fp16:
+                        # modify learning rate with special warm up BERT uses
+                        # if args.fp16 is False, BertAdam is used that handles this automatically
+                        lr_this_step = args.learning_rate * warmup_linear.get_lr(global_step, args.warmup_proportion)
+                        for param_group in optimizer.param_groups:
+                            param_group['lr'] = lr_this_step
+                    scheduler.step()
+                    optimizer.step()
+                    optimizer.zero_grad()
+                    global_step += 1
 
 
-            if (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
-                tr_loss = 0
-                nb_tr_examples, nb_tr_steps = 0, 0 
-                logger.info("***** Report result *****")
-                logger.info("  %s = %s", 'global_step', str(global_step))
-                logger.info("  %s = %s", 'train loss', str(train_loss))
+                if (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
+                    tr_loss = 0
+                    nb_tr_examples, nb_tr_steps = 0, 0
+                    logger.info("***** Report result *****")
+                    logger.info("  %s = %s", 'global_step', str(global_step))
+                    logger.info("  %s = %s", 'train loss', str(train_loss))
 
 
-            if args.do_eval and (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
-                for file in ['dev.csv']:
-                    inference_labels=[]
-                    gold_labels=[]
-                    inference_logits=[]
-                    eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = True)
-                    eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,args.split_num,False)
-                    all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
-                    all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
-                    all_segment_ids = torch.tensor(select_field(eval_features, 'segment_ids'), dtype=torch.long)
-                    all_label = torch.tensor([f.label for f in eval_features], dtype=torch.long)                   
+                if args.do_eval and (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
+                    for file in ['dev.csv']:
+                        inference_labels=[]
+                        gold_labels=[]
+                        inference_logits=[]
+                        eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = True)
+                        eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,args.split_num,False)
+                        all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
+                        all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
+                        all_segment_ids = torch.tensor(select_field(eval_features, 'segment_ids'), dtype=torch.long)
+                        all_label = torch.tensor([f.label for f in eval_features], dtype=torch.long)
 
 
-                    eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label)
+                        eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label)
                         
-                    logger.info("***** Running evaluation *****")
-                    logger.info("  Num examples = %d", len(eval_examples))
-                    logger.info("  Batch size = %d", args.eval_batch_size)  
+                        logger.info("***** Running evaluation *****")
+                        logger.info("  Num examples = %d", len(eval_examples))
+                        logger.info("  Batch size = %d", args.eval_batch_size)
                         
-                    # Run prediction for full data
-                    eval_sampler = SequentialSampler(eval_data)
-                    eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
+                        # Run prediction for full data
+                        eval_sampler = SequentialSampler(eval_data)
+                        eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
 
-                    model.eval()
-                    eval_loss, eval_accuracy = 0, 0
-                    nb_eval_steps, nb_eval_examples = 0, 0
-                    for input_ids, input_mask, segment_ids, label_ids in eval_dataloader:
-                        input_ids = input_ids.to(device)
-                        input_mask = input_mask.to(device)
-                        segment_ids = segment_ids.to(device)
-                        label_ids = label_ids.to(device)
+                        model.eval()
+                        eval_loss, eval_accuracy = 0, 0
+                        nb_eval_steps, nb_eval_examples = 0, 0
+                        for input_ids, input_mask, segment_ids, label_ids in eval_dataloader:
+                            input_ids = input_ids.to(device)
+                            input_mask = input_mask.to(device)
+                            segment_ids = segment_ids.to(device)
+                            label_ids = label_ids.to(device)
 
 
-                        with torch.no_grad():
-                            tmp_eval_loss= model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
-                            logits = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask)
+                            with torch.no_grad():
+                                tmp_eval_loss= model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
+                                logits = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask)
 
-                        logits = logits.detach().cpu().numpy()
-                        label_ids = label_ids.to('cpu').numpy()
-                        inference_labels.append(np.argmax(logits, axis=1))
-                        gold_labels.append(label_ids)
-                        inference_logits.append(logits)
-                        eval_loss += tmp_eval_loss.mean().item()
-                        nb_eval_examples += input_ids.size(0)
-                        nb_eval_steps += 1
+                            logits = logits.detach().cpu().numpy()
+                            label_ids = label_ids.to('cpu').numpy()
+                            inference_labels.append(np.argmax(logits, axis=1))
+                            gold_labels.append(label_ids)
+                            inference_logits.append(logits)
+                            eval_loss += tmp_eval_loss.mean().item()
+                            nb_eval_examples += input_ids.size(0)
+                            nb_eval_steps += 1
                         
-                    gold_labels=np.concatenate(gold_labels,0) 
-                    inference_logits=np.concatenate(inference_logits,0)
-                    model.train()
-                    eval_loss = eval_loss / nb_eval_steps
-                    eval_accuracy = accuracy(inference_logits, gold_labels)
+                        gold_labels=np.concatenate(gold_labels,0)
+                        inference_logits=np.concatenate(inference_logits,0)
+                        model.train()
+                        eval_loss = eval_loss / nb_eval_steps
+                        eval_accuracy = accuracy(inference_logits, gold_labels)
 
-                    result = {'eval_loss': eval_loss,
-                              'eval_F1': eval_accuracy,
-                              'global_step': global_step,
-                              'loss': train_loss}
+                        result = {'eval_loss': eval_loss,
+                                  'eval_F1': eval_accuracy,
+                                  'global_step': global_step,
+                                  'loss': train_loss}
 
-                    output_eval_file = os.path.join(args.output_dir, "eval_results.txt")
-                    with open(output_eval_file, "a") as writer:
-                        for key in sorted(result.keys()):
-                            logger.info("  %s = %s", key, str(result[key]))
-                            writer.write("%s = %s\n" % (key, str(result[key])))
-                        writer.write('*'*80)
-                        writer.write('\n')
-                    if eval_accuracy>best_acc and 'dev' in file:
-                        print("="*80)
-                        print("Best F1",eval_accuracy)
-                        print("Saving Model......")
-                        best_acc=eval_accuracy
-                        # Save a trained model
-                        model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
-                        output_model_file = os.path.join(args.output_dir, "pytorch_model.bin")
-                        torch.save(model_to_save.state_dict(), output_model_file)
-                        print("="*80)
-                    else:
-                        print("="*80)
+                        output_eval_file = os.path.join(args.output_dir, "eval_results.txt")
+                        with open(output_eval_file, "a") as writer:
+                            for key in sorted(result.keys()):
+                                logger.info("  %s = %s", key, str(result[key]))
+                                writer.write("%s = %s\n" % (key, str(result[key])))
+                            writer.write('*'*80)
+                            writer.write('\n')
+                        if eval_accuracy>best_acc and 'dev' in file:
+                            print("="*80)
+                            print("Best F1",eval_accuracy)
+                            print("Saving Model......")
+                            best_acc=eval_accuracy
+                            # Save a trained model
+                            model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
+                            output_model_file = os.path.join(args.output_dir, "pytorch_model.bin")
+                            torch.save(model_to_save.state_dict(), output_model_file)
+                            print("="*80)
+                        else:
+                            print("="*80)
+            summary_writer.close()
     if args.do_test:
         del model
         gc.collect()
