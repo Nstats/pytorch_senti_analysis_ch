@@ -363,7 +363,7 @@ def main():
     args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
     args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
     if args.do_train:
-
+        print('________________________now training______________________________')
         # Prepare data loader
 
         train_examples = read_examples(os.path.join(args.data_dir, 'train.csv'), is_training = True)
@@ -474,7 +474,6 @@ def main():
                 optimizer.zero_grad()
                 global_step += 1
 
-
             if (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
                 tr_loss = 0
                 nb_tr_examples, nb_tr_steps = 0, 0
@@ -482,19 +481,18 @@ def main():
                 logger.info("  %s = %s", 'global_step', str(global_step))
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
-
-            if args.do_eval and (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
+            if args.do_eval and (step + 1) % (args.eval_steps*args.gradient_accumulation_steps) == 0:
+                print('________________________now evaluating______________________________')
                 for file in ['dev.csv']:
-                    inference_labels=[]
-                    gold_labels=[]
-                    inference_logits=[]
+                    inference_labels = []
+                    gold_labels = []
+                    inference_logits = []
                     eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = True)
                     eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,args.split_num,False)
                     all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
                     all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
                     all_segment_ids = torch.tensor(select_field(eval_features, 'segment_ids'), dtype=torch.long)
                     all_label = torch.tensor([f.label for f in eval_features], dtype=torch.long)
-
 
                     eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label)
 
@@ -565,6 +563,7 @@ def main():
             plt.savefig(args.output_dir+'/labeled.jpg')
             # plt.show()
     if args.do_test:
+        print('________________________now testing______________________________')
         del model
         gc.collect()
         args.do_train=False
