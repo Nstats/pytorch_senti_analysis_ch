@@ -10,7 +10,7 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./model_bert$i \
+--output_dir ./output_RoBERTa_large/fold_$i \
 --max_seq_length 512 \
 --split_num 3 \
 --lstm_hidden_size 512 \
@@ -21,7 +21,7 @@ python run_bert.py \
 --gradient_accumulation_steps 64 \
 --warmup_steps 100 \
 --per_gpu_eval_batch_size 32 \
---learning_rate 5e-6 \
+--learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
 --train_steps 1000
