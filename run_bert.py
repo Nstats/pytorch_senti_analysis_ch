@@ -411,6 +411,7 @@ def main():
         best_acc=0
         model.train()
         tr_loss = 0
+        loss_batch = 0
         nb_tr_examples, nb_tr_steps = 0, 0        
         bar = tqdm(range(num_train_optimization_steps),total=num_train_optimization_steps)
         train_dataloader=cycle(train_dataloader)
@@ -419,22 +420,16 @@ def main():
         #     summary_writer = tf.summary.FileWriter(tensorboard_log_dir, sess.graph)
         #     sess.run(tf.global_variables_initializer())
 
-        list_loss = []
         list_loss_evar = []
-        ax = []
         bx = []
+        eval_F1 = []
+        ax = []
 
         for step in bar:
             batch = next(train_dataloader)
             batch = tuple(t.to(device) for t in batch)
             input_ids, input_mask, segment_ids, label_ids = batch
             loss = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
-
-            list_loss.append(loss.item())
-            ax.append(step)
-            plt.clf()  # 清除之前画的图
-            plt.plot(ax, list_loss, label='loss_now', linewidth=1, color='r', marker='o',
-                     markerfacecolor='blue', markersize=2)
 
             if args.n_gpu > 1:
                 loss = loss.mean() # mean() to average on multi-gpu.
@@ -443,12 +438,8 @@ def main():
             if args.gradient_accumulation_steps > 1:
                 loss = loss / args.gradient_accumulation_steps
             tr_loss += loss.item()
+            loss_batch += loss.item()
             train_loss = round(tr_loss*args.gradient_accumulation_steps/(nb_tr_steps+1), 4)
-
-            list_loss_evar.append(train_loss)
-            bx.append(step)
-            plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
-                     markerfacecolor='green', markersize=2)
 
             # print('train_loss=', train_loss)
             # loss_summary = sess.run(merged, feed_dict={loss_evar: train_loss, loss_now: loss.item()})
@@ -461,6 +452,14 @@ def main():
                 optimizer.backward(loss)
             else:
                 loss.backward()
+
+            if (step+1) % args.gradient_accumulation_steps == 0:
+                # plt.clf()  # 清除之前画的图
+                list_loss_evar.append(loss_batch)
+                bx.append(step+1)
+                plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
+                         markerfacecolor='green', markersize=2)
+                loss_batch = 0
 
             if (nb_tr_steps + 1) % args.gradient_accumulation_steps == 0:
                 if args.fp16:
@@ -481,7 +480,7 @@ def main():
                 logger.info("  %s = %s", 'global_step', str(global_step))
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
-            if args.do_eval and (step + 1) % (args.eval_steps*args.gradient_accumulation_steps) == 0:
+            if args.do_eval and (step + 1) % int(num_train_optimization_steps/10) == 0:
                 print('________________________now evaluating______________________________')
                 for file in ['dev.csv']:
                     inference_labels = []
@@ -533,6 +532,11 @@ def main():
                     eval_loss = eval_loss / nb_eval_steps
                     eval_accuracy = accuracy(inference_logits, gold_labels)
 
+                    eval_F1.append(eval_accuracy)
+                    ax.append(step+1)
+                    plt.plot(ax, eval_F1, label='eval_F1', linewidth=1, color='r', marker='o',
+                             markerfacecolor='blue', markersize=2)
+
                     result = {'eval_loss': eval_loss,
                               'eval_F1': eval_accuracy,
                               'global_step': global_step,
@@ -557,11 +561,9 @@ def main():
                         print("="*80)
                     else:
                         print("="*80)
-            # summary_writer.close()
-            # plt.ioff()
-            plt.legend()
+
             plt.savefig(args.output_dir+'/labeled.jpg')
-            # plt.show()
+
     if args.do_test:
         print('________________________now testing______________________________')
         del model
