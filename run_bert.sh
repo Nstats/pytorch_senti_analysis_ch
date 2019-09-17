@@ -18,7 +18,7 @@ python run_bert.py \
 --lstm_dropout 0.1 \
 --eval_steps 200 \
 --per_gpu_train_batch_size 64 \
---gradient_accumulation_steps 64 \
+--gradient_accumulation_steps 32 \
 --warmup_steps 1000 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
@@ -30,5 +30,6 @@ done
 
 :<<annotation
 epoch=10 for Roberta_large and 20 for BERT_base
-training_steps=epoch*num_training_examples/(per_gpu_train_batch_size*gradient_accumulation_steps)
+training_steps = epoch*num_training_examples/(per_gpu_train_batch_size*gradient_accumulation_steps)
+epoch = training_steps*(per_gpu_train_batch_size*gradient_accumulation_steps)/num_training_examples
 annotation
