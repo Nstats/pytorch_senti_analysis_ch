@@ -441,9 +441,6 @@ def main():
             loss_batch += loss.item()
             train_loss = round(tr_loss*args.gradient_accumulation_steps/(nb_tr_steps+1), 4)
 
-            # print('train_loss=', train_loss)
-            # loss_summary = sess.run(merged, feed_dict={loss_evar: train_loss, loss_now: loss.item()})
-            # summary_writer.add_summary(loss_summary, step + 1)
             bar.set_description("loss {}".format(train_loss))
             nb_tr_examples += input_ids.size(0)
             nb_tr_steps += 1
@@ -454,7 +451,6 @@ def main():
                 loss.backward()
 
             if (step+1) % args.gradient_accumulation_steps == 0:
-                # plt.clf()  # 清除之前画的图
                 list_loss_evar.append(loss_batch)
                 bx.append(step+1)
                 plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
@@ -536,7 +532,8 @@ def main():
                     ax.append(step+1)
                     plt.plot(ax, eval_F1, label='eval_F1', linewidth=1, color='r', marker='o',
                              markerfacecolor='blue', markersize=2)
-
+		    for a, b in zip(ax, eval_F1):
+		    	plt.text(a, b, b, ha='center', va='bottom', fontsize=20)
                     result = {'eval_loss': eval_loss,
                               'eval_F1': eval_accuracy,
                               'global_step': global_step,
