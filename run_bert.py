@@ -433,8 +433,6 @@ def main():
 
             if args.n_gpu > 1:
                 loss = loss.mean() # mean() to average on multi-gpu.
-            if args.fp16 and args.loss_scale != 1.0:
-                loss = loss * args.loss_scale
             if args.gradient_accumulation_steps > 1:
                 loss = loss / args.gradient_accumulation_steps
             tr_loss += loss.item()
@@ -446,7 +444,8 @@ def main():
             nb_tr_steps += 1
 
             if args.fp16:
-                optimizer.backward(loss)
+                # optimizer.backward(loss)
+                loss.backward()
             else:
                 loss.backward()
 
@@ -458,12 +457,12 @@ def main():
                 loss_batch = 0
 
             if (nb_tr_steps + 1) % args.gradient_accumulation_steps == 0:
-                if args.fp16:
+                # if args.fp16:
                     # modify learning rate with special warm up BERT uses
                     # if args.fp16 is False, BertAdam is used that handles this automatically
-                    lr_this_step = args.learning_rate * warmup_linear.get_lr(global_step, args.warmup_proportion)
-                    for param_group in optimizer.param_groups:
-                        param_group['lr'] = lr_this_step
+                    # lr_this_step = args.learning_rate * warmup_linear.get_lr(global_step, args.warmup_proportion)
+                    # for param_group in optimizer.param_groups:
+                    #     param_group['lr'] = lr_this_step
                 scheduler.step()
                 optimizer.step()
                 optimizer.zero_grad()
