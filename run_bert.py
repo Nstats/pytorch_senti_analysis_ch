@@ -124,9 +124,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,split_num,
 
         context_tokens=tokenizer.tokenize(example.text_a)
         ending_tokens=tokenizer.tokenize(example.text_b)
-        
 
-        skip_len=len(context_tokens)/split_num  
+        skip_len=len(context_tokens)/split_num
         choices_features = []
         for i in range(split_num):
             context_tokens_choice=context_tokens[int(i*skip_len):int((i+1)*skip_len)]   
@@ -369,11 +368,13 @@ def main():
         train_examples = read_examples(os.path.join(args.data_dir, 'train.csv'), is_training = True)
         train_features = convert_examples_to_features(
             train_examples, tokenizer, args.max_seq_length,args.split_num, True)
+        # print('train_feature_size=', train_features.__sizeof__())
         all_input_ids = torch.tensor(select_field(train_features, 'input_ids'), dtype=torch.long)
         all_input_mask = torch.tensor(select_field(train_features, 'input_mask'), dtype=torch.long)
         all_segment_ids = torch.tensor(select_field(train_features, 'segment_ids'), dtype=torch.long)
         all_label = torch.tensor([f.label for f in train_features], dtype=torch.long)
         train_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label)
+        # print('train_data=',train_data[0])
         if args.local_rank == -1:
             train_sampler = RandomSampler(train_data)
         else:

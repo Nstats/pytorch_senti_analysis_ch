@@ -982,6 +982,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 position_ids=None, head_mask=None):
 
         flat_input_ids = input_ids.view(-1, input_ids.size(-1))
+        # print('flat_input_ids=', flat_input_ids)
         flat_position_ids = position_ids.view(-1, position_ids.size(-1)) if position_ids is not None else None
         flat_token_type_ids = token_type_ids.view(-1, token_type_ids.size(-1)) if token_type_ids is not None else None
         flat_attention_mask = attention_mask.view(-1, attention_mask.size(-1)) if attention_mask is not None else None
