@@ -532,8 +532,8 @@ def main():
                     ax.append(step+1)
                     plt.plot(ax, eval_F1, label='eval_F1', linewidth=1, color='r', marker='o',
                              markerfacecolor='blue', markersize=2)
-		    for a, b in zip(ax, eval_F1):
-		    	plt.text(a, b, b, ha='center', va='bottom', fontsize=20)
+                    for a, b in zip(ax, eval_F1):
+                        plt.text(a, b, b, ha='center', va='bottom', fontsize=20)
                     result = {'eval_loss': eval_loss,
                               'eval_F1': eval_accuracy,
                               'global_step': global_step,

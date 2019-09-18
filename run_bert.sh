@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 export CUDA_VISIBLE_DEVICES=0
-for((i=0;i<5;i++));
+for((i=1;i<5;i++));
 
 do
 python run_bert.py \
