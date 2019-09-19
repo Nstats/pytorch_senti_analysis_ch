@@ -452,10 +452,12 @@ def main():
 
             # draw loss every 500 docs
             if (step+1) % int(500/(args.train_batch_size/args.gradient_accumulation_steps)) == 0:
-                list_loss_evar.append(loss_batch)
+                list_loss_evar.append(round(loss_batch/8.0,4))
                 bx.append(step+1)
                 plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
                          markerfacecolor='green', markersize=2)
+                for a, b in zip(bx, list_loss_evar):
+                    plt.text(a, b, b, ha='center', va='bottom', fontsize=8)
                 plt.savefig(args.output_dir + '/labeled.jpg')
                 loss_batch = 0
 

@@ -14,19 +14,19 @@ python run_bert.py \
 --output_dir ./output_RoBERTa_large_10epo/fold_$i \
 --save_steps 50 \
 --max_seq_length 512 \
---split_num 3 \
+--split_num 1 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
 --eval_steps 200 \
 --per_gpu_train_batch_size 64 \
---gradient_accumulation_steps 32 \
---warmup_steps 0 \
+--gradient_accumulation_steps 8 \
+--warmup_steps 50 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 30000
+--train_steps 7500
 
 done
 

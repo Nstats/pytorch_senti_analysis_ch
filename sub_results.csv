@@ -1,4 +1,3 @@
-score(online & offline)	model				data		fp16	paras
-0.8038			RoBERTa_large + MLP		original	False	epoch3_maxl512_bs64_lr5e-5
-			RoBERTa_large + MLP		original	True	epoch3_maxl512_bs64_lr5e-5
-			RoBERTa_large + MLP		original	False	epoch10_maxl512_bs64_lr5e-5
+score	model				data		fp16	paras					split_num
+0.8038	RoBERTa_large + MLP		original	False	epoch3_maxl512_bs64_lr5e-5		3
+	RoBERTa_large + MLP		original	False	epoch10_maxl512_bs64_lr5e-5		1
