@@ -2,12 +2,9 @@ import pandas as pd
 import os
 import random
 
-
-
-
-train_df=pd.read_csv("Train_DataSet.csv")
-train_label_df=pd.read_csv("Train_DataSet_Label.csv")
-test_df=pd.read_csv("Test_DataSet.csv")
+train_df=pd.read_csv("./data/Train_DataSet.csv")
+train_label_df=pd.read_csv("./data/Train_DataSet_Label.csv")
+test_df=pd.read_csv("./data/Test_DataSet.csv")
 train_df=train_df.merge(train_label_df,on='id',how='left')
 train_df['label']=train_df['label'].fillna(-1)
 train_df=train_df[train_df['label']!=-1]
@@ -33,12 +30,14 @@ for i in range(5):
 
 for i in range(5):
     print("Fold",i)
-    os.system("mkdir data_{}".format(i))
+    if os.path.exists('./data/data_{}'.format(i)):
+        os.system("rm -rf ./data/data_{}".format(i))
+    os.system("mkdir ./data/data_{}".format(i))
     dev_index=list(K_fold[i])
     train_index=[]
     for j in range(5):
         if j!=i:
             train_index+=K_fold[j]
-    train_df.iloc[train_index].to_csv("data_{}/train.csv".format(i))
-    train_df.iloc[dev_index].to_csv("data_{}/dev.csv".format(i))
-    test_df.to_csv("data_{}/test.csv".format(i))
+    train_df.iloc[train_index].to_csv("./data/data_{}/train.csv".format(i))
+    train_df.iloc[dev_index].to_csv("./data/data_{}/dev.csv".format(i))
+    test_df.to_csv("./data/data_{}/test.csv".format(i))

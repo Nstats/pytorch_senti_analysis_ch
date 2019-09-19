@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+python ./data/preprocess.py;
 export CUDA_VISIBLE_DEVICES=0
 for((i=0;i<5;i++));
 

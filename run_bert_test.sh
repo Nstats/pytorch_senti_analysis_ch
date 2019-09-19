@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+python ./data/preprocess.py;
+export CUDA_VISIBLE_DEVICES=0
 python run_bert.py \
 --model_type bert \
 --model_name_or_path chinese_RoBERTa_zh_Large_pytorch \
@@ -13,7 +15,6 @@ python run_bert.py \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
---eval_steps 200 \
 --per_gpu_train_batch_size 2 \
 --gradient_accumulation_steps 2 \
 --warmup_steps 0 \

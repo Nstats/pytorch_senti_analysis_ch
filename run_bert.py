@@ -257,7 +257,7 @@ def main():
                         help="Total number of training epochs to perform.")
     parser.add_argument("--max_steps", default=-1, type=int,
                         help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
-    parser.add_argument("--eval_steps", default=-1, type=int,
+    parser.add_argument("--eval_steps", default=200, type=int,
                         help="")
     parser.add_argument("--lstm_hidden_size", default=300, type=int,
                         help="")
@@ -450,11 +450,13 @@ def main():
             else:
                 loss.backward()
 
-            if (step+1) % args.gradient_accumulation_steps == 0:
+            # draw loss every 500 docs
+            if (step+1) % int(500/(args.train_batch_size/args.gradient_accumulation_steps)) == 0:
                 list_loss_evar.append(loss_batch)
                 bx.append(step+1)
                 plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
                          markerfacecolor='green', markersize=2)
+                plt.savefig(args.output_dir + '/labeled.jpg')
                 loss_batch = 0
 
             if (nb_tr_steps + 1) % args.gradient_accumulation_steps == 0:
@@ -469,7 +471,7 @@ def main():
                 optimizer.zero_grad()
                 global_step += 1
 
-            if (step + 1) %(args.eval_steps*args.gradient_accumulation_steps)==0:
+            if (step + 1) % (args.eval_steps*args.gradient_accumulation_steps) == 0:
                 tr_loss = 0
                 nb_tr_examples, nb_tr_steps = 0, 0
                 logger.info("***** Report result *****")
@@ -477,7 +479,6 @@ def main():
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
             if args.do_eval and (step + 1) % int(num_train_optimization_steps/10) == 0:
-                print('________________________now evaluating______________________________')
                 for file in ['dev.csv']:
                     inference_labels = []
                     gold_labels = []
@@ -508,9 +509,8 @@ def main():
                         segment_ids = segment_ids.to(device)
                         label_ids = label_ids.to(device)
 
-
                         with torch.no_grad():
-                            tmp_eval_loss= model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
+                            tmp_eval_loss = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
                             logits = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask)
 
                         logits = logits.detach().cpu().numpy()
@@ -534,6 +534,7 @@ def main():
                              markerfacecolor='blue', markersize=2)
                     for a, b in zip(ax, eval_F1):
                         plt.text(a, b, b, ha='center', va='bottom', fontsize=8)
+                    plt.savefig(args.output_dir + '/labeled.jpg')
                     result = {'eval_loss': eval_loss,
                               'eval_F1': eval_accuracy,
                               'global_step': global_step,
@@ -559,8 +560,6 @@ def main():
                     else:
                         print("="*80)
 
-            plt.savefig(args.output_dir+'/labeled.jpg')
-
     if args.do_test:
         print('________________________now testing______________________________')
         del model
@@ -580,8 +579,7 @@ def main():
             model = DDP(model)
         elif args.n_gpu > 1:
             model = torch.nn.DataParallel(model)        
-        
-        
+
         for file,flag in [('dev.csv','dev'),('test.csv','test')]:
             inference_labels=[]
             gold_labels=[]
@@ -609,6 +607,7 @@ def main():
 
                 with torch.no_grad():
                     logits = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask).detach().cpu().numpy()
+                    # print('test_logits=', logits)
                 label_ids = label_ids.to('cpu').numpy()
                 inference_labels.append(logits)
                 gold_labels.append(label_ids)
@@ -621,6 +620,7 @@ def main():
                 df['label_1']=logits[:,1]
                 df['label_2']=logits[:,2]
                 df[['id','label_0','label_1','label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"),index=False)
-            
+
+
 if __name__ == "__main__":
     main()
