@@ -1,6 +1,6 @@
-score	model				data		fp16	paras					split_num
-0.8038	RoBERTa_large+guoday		original	False	epoch3_maxl512_bs64_lr5e-5		3
-	RoBERTa_large+guoday		original	False	epoch3_maxl512_bs64_lr5e-5		1 # guoday's split num really works?(from 3 to 1)
-	RoBERTa_large+guoday		original	False	epoch10_maxl512_bs64_lr5e-5		1	# Does epoch num matter?(from 3 to 10)
-	RoBERTa_large+MLP	original	False	epoch10_maxl512_bs64_lr5e-5	1	# Switch guoday's classifier to MLP.
-	RoBERTa_large+GRU	original	False	epoch10_maxl512_bs64_lr5e-5	1	# Use GRU to handle BERT output before MLP.
+score	model				data		fp16	paras				split_num
+0.8038	RoBERTa_large+guoday		original	False	epoch3_maxl512_bs64_lr5e-5	3
+	RoBERTa_large+guoday		original	False	epoch3_maxl512_bs64_lr5e-5	1 # guoday's split num really works?(from 3 to 1)
+0.7931	RoBERTa_large+guoday		original	False	epoch10_maxl512_bs64_lr5e-5	1 # Does epoch num matter?(from 3 to 10)
+	RoBERTa_large+MLP	original	False	epoch10_maxl512_bs64_lr5e-5		1 # Switch guoday's classifier to MLP.
+	RoBERTa_large+GRU	original	False	epoch10_maxl512_bs64_lr5e-5		1 # Use GRU to handle BERT output before MLP.
