@@ -968,6 +968,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.dropout = nn.Dropout(config.lstm_dropout)
         self.pooling = nn.Linear(config.hidden_size, config.hidden_size)
         self.classifier = nn.Linear(config.lstm_hidden_size*2, self.config.num_labels)
+        self.classifier_type = config.classifier
         
         self.W=[]
         self.gru=[]
@@ -986,31 +987,34 @@ class BertForSequenceClassification(BertPreTrainedModel):
         flat_position_ids = position_ids.view(-1, position_ids.size(-1)) if position_ids is not None else None
         flat_token_type_ids = token_type_ids.view(-1, token_type_ids.size(-1)) if token_type_ids is not None else None
         flat_attention_mask = attention_mask.view(-1, attention_mask.size(-1)) if attention_mask is not None else None
-        
-        
+
         outputs = self.bert(input_ids=flat_input_ids, position_ids=flat_position_ids, token_type_ids=flat_token_type_ids,
-                               attention_mask=flat_attention_mask, head_mask=head_mask)
+                            attention_mask=flat_attention_mask, head_mask=head_mask)
         pooled_output = outputs[1]
+        # print('pooled_output_size=', pooled_output.size())  # [batch_size*num_split, hidden_size]
+        output = pooled_output.reshape(input_ids.size(0), input_ids.size(1), -1).contiguous()
+        # print('output_size=', output.size())  # [batch_size, num_split, hidden_size]
 
-        
-        output = pooled_output.reshape(input_ids.size(0),input_ids.size(1),-1).contiguous()
-        
+        if self.classifier_type == 'guoday':
+            for w, gru in zip(self.W, self.gru):
+                gru.flatten_parameters()
+                output, hidden = gru(output)
+                output = self.dropout(output)
 
-        for w,gru in zip(self.W,self.gru):
-            gru.flatten_parameters()
-            output, hidden = gru(output)
-            output = self.dropout(output)
+            hidden = hidden.permute(1, 0, 2).reshape(input_ids.size(0), -1).contiguous()
+            # hidden=output.mean(1)
+            # hidden=nn.functional.tanh(self.pooling(hidden))
+            # hidden=self.dropout(hidden)
+            logits = self.classifier(hidden)
 
+        elif self.classifier_type == 'MLP':
+            logits = self.classifier(hidden)
 
+        elif self.classifier_type == 'GRU_MLP':
+            logits = self.classifier(hidden)
 
-
-        hidden=hidden.permute(1,0,2).reshape(input_ids.size(0),-1).contiguous()
-        #hidden=output.mean(1)
-        #hidden=nn.functional.tanh(self.pooling(hidden))
-        #hidden=self.dropout(hidden)
-        logits = self.classifier(hidden)
-        
-
+        else:
+            raise ValueError('classifier type not in list.')
 
         if labels is not None:
             if self.num_labels == 1:
@@ -1022,7 +1026,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             outputs = loss
         else:
-            outputs = nn.functional.softmax(logits,-1)
+            outputs = nn.functional.softmax(logits, -1)
         return outputs  # (loss), logits, (hidden_states), (attentions)
 
 

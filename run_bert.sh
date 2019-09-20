@@ -12,7 +12,7 @@ python run_bert.py \
 --do_test \
 --data_dir ./data/data_$i \
 --output_dir ./output_RoBERTa_large_10epo/fold_$i \
---save_steps 50 \
+--classifier 'guoday' \
 --max_seq_length 512 \
 --split_num 1 \
 --lstm_hidden_size 512 \
@@ -21,16 +21,17 @@ python run_bert.py \
 --eval_steps 200 \
 --per_gpu_train_batch_size 64 \
 --gradient_accumulation_steps 8 \
---warmup_steps 50 \
+--warmup_steps 20 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 7500
+--train_steps 2250
 
 done
 
 :<<annotation
+--classifier:'guoday' or 'MLP' or 'GRU_MLP'
 training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_accumulation_steps)
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
 annotation

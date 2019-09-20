@@ -217,6 +217,8 @@ def main():
                         help="Path to pre-trained model or shortcut name selected in the list: " + ", ".join(ALL_MODELS))
     parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
+    parser.add_argument('--classifier', default='guoday', type=str, required=True,
+                        help='classifier type, guoday or MLP or GRU_MLP or ...')
 
     ## Other parameters
     parser.add_argument("--config_name", default="", type=str,
@@ -341,12 +343,10 @@ def main():
     # merged = tf.summary.merge([train_loss, dev_loss_evar])
 
     config = BertConfig.from_pretrained(args.model_name_or_path, num_labels=3)
-    
+
     # Prepare model
     model = BertForSequenceClassification.from_pretrained(args.model_name_or_path,args,config=config)
 
-
-        
     if args.fp16:
         model.half()
     model.to(device)
@@ -365,9 +365,9 @@ def main():
         print('________________________now training______________________________')
         # Prepare data loader
 
-        train_examples = read_examples(os.path.join(args.data_dir, 'train.csv'), is_training = True)
+        train_examples = read_examples(os.path.join(args.data_dir, 'train.csv'), is_training=True)
         train_features = convert_examples_to_features(
-            train_examples, tokenizer, args.max_seq_length,args.split_num, True)
+            train_examples, tokenizer, args.max_seq_length, args.split_num, True)
         # print('train_feature_size=', train_features.__sizeof__())
         all_input_ids = torch.tensor(select_field(train_features, 'input_ids'), dtype=torch.long)
         all_input_mask = torch.tensor(select_field(train_features, 'input_mask'), dtype=torch.long)
@@ -456,23 +456,23 @@ def main():
                 bx.append(step+1)
                 plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
                          markerfacecolor='green', markersize=2)
-                for a, b in zip(bx, list_loss_evar):
-                    plt.text(a, b, b, ha='center', va='bottom', fontsize=8)
                 plt.savefig(args.output_dir + '/labeled.jpg')
                 loss_batch = 0
 
+            # paras update every batch data.
             if (nb_tr_steps + 1) % args.gradient_accumulation_steps == 0:
-                # if args.fp16:
+                if args.fp16:
                     # modify learning rate with special warm up BERT uses
                     # if args.fp16 is False, BertAdam is used that handles this automatically
-                    # lr_this_step = args.learning_rate * warmup_linear.get_lr(global_step, args.warmup_proportion)
-                    # for param_group in optimizer.param_groups:
-                    #     param_group['lr'] = lr_this_step
+                    lr_this_step = args.learning_rate * warmup_linear.get_lr(global_step, args.warmup_proportion)
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = lr_this_step
                 scheduler.step()
                 optimizer.step()
                 optimizer.zero_grad()
                 global_step += 1
 
+            # report results every 200 real batch.
             if (step + 1) % (args.eval_steps*args.gradient_accumulation_steps) == 0:
                 tr_loss = 0
                 nb_tr_examples, nb_tr_steps = 0, 0
@@ -480,6 +480,7 @@ def main():
                 logger.info("  %s = %s", 'global_step', str(global_step))
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
+            # do eval 10 times during training stage.
             if args.do_eval and (step + 1) % int(num_train_optimization_steps/10) == 0:
                 for file in ['dev.csv']:
                     inference_labels = []
@@ -529,7 +530,7 @@ def main():
                     model.train()
                     eval_loss = eval_loss / nb_eval_steps
                     eval_accuracy = accuracy(inference_logits, gold_labels)
-
+                    # draw loss.
                     eval_F1.append(round(eval_accuracy, 4))
                     ax.append(step+1)
                     plt.plot(ax, eval_F1, label='eval_F1', linewidth=1, color='r', marker='o',
@@ -537,6 +538,7 @@ def main():
                     for a, b in zip(ax, eval_F1):
                         plt.text(a, b, b, ha='center', va='bottom', fontsize=8)
                     plt.savefig(args.output_dir + '/labeled.jpg')
+
                     result = {'eval_loss': eval_loss,
                               'eval_F1': eval_accuracy,
                               'global_step': global_step,
@@ -549,24 +551,22 @@ def main():
                             writer.write("%s = %s\n" % (key, str(result[key])))
                         writer.write('*'*80)
                         writer.write('\n')
-                    if eval_accuracy>best_acc and 'dev' in file:
-                        print("="*80)
-                        print("Best F1",eval_accuracy)
+                    if eval_accuracy > best_acc and 'dev' in file:
+                        print("=" * 80)
+                        print("more accurate model arises, now best F1 = ", eval_accuracy)
                         print("Saving Model......")
-                        best_acc=eval_accuracy
-                        # Save a trained model
-                        model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
+                        best_acc = eval_accuracy
+                        # Save a trained model, only save the model it-self
+                        model_to_save = model.module if hasattr(model, 'module') else model
                         output_model_file = os.path.join(args.output_dir, "pytorch_model.bin")
                         torch.save(model_to_save.state_dict(), output_model_file)
-                        print("="*80)
-                    else:
                         print("="*80)
 
     if args.do_test:
         print('________________________now testing______________________________')
         del model
         gc.collect()
-        args.do_train=False
+        args.do_train = False
         model = BertForSequenceClassification.from_pretrained(os.path.join(args.output_dir, "pytorch_model.bin"),
                                                               args, config=config)
         if args.fp16:
@@ -576,22 +576,22 @@ def main():
             try:
                 from apex.parallel import DistributedDataParallel as DDP
             except ImportError:
-                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use distributed and fp16 training.")
+                raise ImportError("Please install apex from "
+                                  "https://www.github.com/nvidia/apex to use distributed and fp16 training.")
 
             model = DDP(model)
         elif args.n_gpu > 1:
             model = torch.nn.DataParallel(model)        
 
-        for file,flag in [('dev.csv','dev'),('test.csv','test')]:
-            inference_labels=[]
-            gold_labels=[]
+        for file, flag in [('dev.csv', 'dev'), ('test.csv', 'test')]:
+            inference_labels = []
+            gold_labels = []
             eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = False)
             eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,args.split_num,False)
             all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
             all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
             all_segment_ids = torch.tensor(select_field(eval_features, 'segment_ids'), dtype=torch.long)
             all_label = torch.tensor([f.label for f in eval_features], dtype=torch.long)                           
-
 
             eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids,all_label)
             # Run prediction for full data
@@ -613,15 +613,18 @@ def main():
                 label_ids = label_ids.to('cpu').numpy()
                 inference_labels.append(logits)
                 gold_labels.append(label_ids)
-            gold_labels=np.concatenate(gold_labels,0)
-            logits=np.concatenate(inference_labels,0)
-            print(flag, accuracy(logits, gold_labels))
-            if flag=='test':
-                df=pd.read_csv(os.path.join(args.data_dir, file))
-                df['label_0']=logits[:,0]
-                df['label_1']=logits[:,1]
-                df['label_2']=logits[:,2]
-                df[['id','label_0','label_1','label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"),index=False)
+            gold_labels = np.concatenate(gold_labels, 0)
+            logits = np.concatenate(inference_labels, 0)
+            if flag == 'dev':
+                print(flag, accuracy(logits, gold_labels))
+            elif flag == 'test':
+                df = pd.read_csv(os.path.join(args.data_dir, file))
+                df['label_0'] = logits[:, 0]
+                df['label_1'] = logits[:, 1]
+                df['label_2'] = logits[:, 2]
+                df[['id', 'label_0', 'label_1', 'label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False)
+            else:
+                raise ValueError('flag not in [dev, test]')
 
 
 if __name__ == "__main__":

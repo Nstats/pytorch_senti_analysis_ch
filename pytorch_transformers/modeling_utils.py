@@ -372,7 +372,7 @@ class PreTrainedModel(nn.Module):
         torch.save(model_to_save.state_dict(), output_model_file)
 
     @classmethod
-    def from_pretrained(cls, pretrained_model_name_or_path, args,*inputs, **kwargs):
+    def from_pretrained(cls, pretrained_model_name_or_path, args, *inputs, **kwargs):
         r"""Instantiate a pretrained pytorch model from a pre-trained model configuration.
 
         The model is set in evaluation mode by default using ``model.eval()`` (Dropout modules are deactivated)
@@ -438,9 +438,10 @@ class PreTrainedModel(nn.Module):
         # Load config
         if config is None:
             config = cls.config_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
-        config.lstm_hidden_size=args.lstm_hidden_size
-        config.lstm_layers=args.lstm_layers
-        config.lstm_dropout=args.lstm_dropout
+        config.lstm_hidden_size = args.lstm_hidden_size
+        config.lstm_layers = args.lstm_layers
+        config.lstm_dropout = args.lstm_dropout
+        config.classifier = args.classifier
         # Load model
         if pretrained_model_name_or_path in cls.pretrained_model_archive_map:
             archive_file = cls.pretrained_model_archive_map[pretrained_model_name_or_path]

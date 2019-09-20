@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-python ./data/preprocess.py;
+# python ./data/preprocess.py;
 export CUDA_VISIBLE_DEVICES=0
 python run_bert.py \
 --model_type bert \
@@ -9,13 +9,13 @@ python run_bert.py \
 --do_test \
 --data_dir ./data/data_0 \
 --output_dir ./output_test/fold_0 \
---save_steps 50 \
+--classifier 'guoday' \
 --max_seq_length 10 \
---split_num 3 \
+--split_num 1 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
---per_gpu_train_batch_size 2 \
+--per_gpu_train_batch_size 6 \
 --gradient_accumulation_steps 2 \
 --warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
