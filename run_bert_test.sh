@@ -11,7 +11,7 @@ python run_bert.py \
 --output_dir ./output_test/fold_0 \
 --classifier 'guoday' \
 --max_seq_length 10 \
---split_num 1 \
+--split_num 4 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \

@@ -11,10 +11,10 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./output_RoBERTa_large_3epo/fold_$i \
+--output_dir ./output_RoBERTa_large_10epo_3split/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
---split_num 1 \
+--split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
@@ -34,5 +34,5 @@ done
 --classifier:'guoday' or 'MLP' or 'GRU_MLP'
 training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_accumulation_steps)
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
-python combine.py --model_prefix ./output_RoBERTa_large_3epo/fold_ --out_path ./sub.csv
+python combine.py --model_prefix ./output_RoBERTa_large_3epo/fold_
 annotation

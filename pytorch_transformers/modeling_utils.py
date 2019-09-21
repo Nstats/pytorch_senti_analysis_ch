@@ -485,7 +485,7 @@ class PreTrainedModel(nn.Module):
         
             
         # Instantiate model.
-        model = cls(config)
+        model = cls(config, args)
 
         if state_dict is None and not from_tf:
             state_dict = torch.load(resolved_archive_file, map_location='cpu')

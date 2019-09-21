@@ -720,8 +720,8 @@ class BertModel(BertPreTrainedModel):
                                        head_mask=head_mask)
         sequence_output = encoder_outputs[0]
         pooled_output = self.pooler(sequence_output)
-
-        outputs = (sequence_output, pooled_output,) + encoder_outputs[1:]  # add hidden_states and attentions if they are here
+        # add hidden_states and attentions if they are here
+        outputs = (sequence_output, pooled_output,) + encoder_outputs[1:]
         return outputs  # sequence_output, pooled_output, (hidden_states), (attentions)
 
 
@@ -927,8 +927,7 @@ from torch.autograd import Variable
     
 
 @add_start_docstrings("""Bert Model transformer with a sequence classification/regression head on top (a linear layer on top of
-    the pooled output) e.g. for GLUE tasks. """,
-    BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
+    the pooled output) e.g. for GLUE tasks. """, BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class BertForSequenceClassification(BertPreTrainedModel):
     r"""
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
@@ -960,7 +959,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         loss, logits = outputs[:2]
 
     """
-    def __init__(self, config):
+    def __init__(self, config, args):
         super(BertForSequenceClassification, self).__init__(config)
         self.num_labels = config.num_labels
 
@@ -978,6 +977,8 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.W=nn.ModuleList(self.W)
         self.gru=nn.ModuleList(self.gru)      
         self.apply(self.init_weights)
+        self.split_num = args.split_num
+        self.BERT_hidden_size = config.hidden_size
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None,
                 position_ids=None, head_mask=None):
@@ -990,6 +991,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
 
         outputs = self.bert(input_ids=flat_input_ids, position_ids=flat_position_ids, token_type_ids=flat_token_type_ids,
                             attention_mask=flat_attention_mask, head_mask=head_mask)
+        # print('bert_outputs=', outputs)  # outputs = (sequence_output, pooled_output,) + encoder_outputs[1:]
         pooled_output = outputs[1]
         # print('pooled_output_size=', pooled_output.size())  # [batch_size*num_split, hidden_size]
         output = pooled_output.reshape(input_ids.size(0), input_ids.size(1), -1).contiguous()
@@ -1008,10 +1010,19 @@ class BertForSequenceClassification(BertPreTrainedModel):
             logits = self.classifier(hidden)
 
         elif self.classifier_type == 'MLP':
-            logits = self.classifier(hidden)
+            hidden = output.reshape(input_ids.size(0), -1).contiguous()  # [batch_size, num_split*hidden_size]
+            hidden = self.dropout(hidden)
+            cls_func = nn.Linear(self.split_num*self.BERT_hidden_size, 3)
+            logits = cls_func(hidden)
 
         elif self.classifier_type == 'GRU_MLP':
-            logits = self.classifier(hidden)
+            sequence_output = outputs[0]
+            # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
+            for w, gru in zip(self.W, self.gru):
+                gru.flatten_parameters()
+                output, hidden = gru(sequence_output)
+                output = self.dropout(output)
+            logits = self.classifier(output)
 
         else:
             raise ValueError('classifier type not in list.')
