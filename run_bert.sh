@@ -20,13 +20,13 @@ python run_bert.py \
 --lstm_dropout 0.1 \
 --eval_steps 200 \
 --per_gpu_train_batch_size 64 \
---gradient_accumulation_steps 8 \
---warmup_steps 20 \
+--gradient_accumulation_steps 32 \
+--warmup_steps 500 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 2250
+--train_steps 30000
 
 done
 
