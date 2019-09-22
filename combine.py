@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--model_prefix", default='./output_RoBERTa_large_3epo/fold_', type=str, required=True)
+parser.add_argument("--model_prefix", default='./output_RoBERTa_large_10epo_3split/fold_', type=str, required=True)
 args = parser.parse_args()
 
 k=5

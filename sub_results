@@ -2,13 +2,18 @@ score	model				data		fp16	paras			split_num
 0.7999	RoBERTa_large+guoday		original	False	epoch3 _bs64_lr5e-5	1
 0.8112	RoBERTa_large+guoday		original	False	epoch3 _bs64_lr5e-5	3
 	RoBERTa_large+guoday            original        False   epoch10_bs64_lr5e-5     1
-	RoBERTa_large+guoday            original        False   epoch10_bs64_lr5e-5     3
+0.8020	RoBERTa_large+guoday            original        False   epoch10_bs64_lr5e-5     3
 
 
 	RoBERTa_large+guoday            original        False   epoch3 _bs32_lr5e-5     1
 	RoBERTa_large+guoday            original        False   epoch3 _bs32_lr5e-5     3
         RoBERTa_large+guoday            original        False   epoch10_bs32_lr5e-5     1
         RoBERTa_large+guoday            original        False   epoch10_bs32_lr5e-5     3
+
+	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     1
+	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     3
+	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     1
+	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     3
 
 
 	RoBERTa_large+MLP		original	False	epoch10_bs32_lr5e-5	1
