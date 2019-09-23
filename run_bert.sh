@@ -11,7 +11,7 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./output_RoBERTa_large_10epo_1split/fold_$i \
+--output_dir ./out_RoBERTa_large_3epo_3split_16bs/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
 --split_num 1 \
@@ -19,14 +19,14 @@ python run_bert.py \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
 --eval_steps 200 \
---per_gpu_train_batch_size 64 \
---gradient_accumulation_steps 8 \
---warmup_steps 500 \
+--per_gpu_train_batch_size 16 \
+--gradient_accumulation_steps 2 \
+--warmup_steps 20 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 7500
+--train_steps 2250
 
 done
 
@@ -35,4 +35,6 @@ done
 training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_accumulation_steps)
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
 python combine.py --model_prefix ./output_RoBERTa_large_3epo/fold_
+
+8docs/step 3split 512 27g
 annotation
