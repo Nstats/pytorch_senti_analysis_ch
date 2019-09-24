@@ -6,7 +6,8 @@ score	model				data		fp16	paras			split_num	dropout
 
 	RoBERTa_large+guoday            original        False   epoch5 _bs64_lr5e-5     3               0.1	# epoch num matters?
 
-	RoBERTa_large+guoday            original        False   epoch3 _bs32_lr5e-5     3		0.1	# batch size matters?
+0.7873	RoBERTa_large+guoday            original        False   epoch3 _bs32_lr5e-5     3		0.1	# batch size matters?
+	RoBERTa_large+guoday            original        False   epoch3 _bs128_lr5e-5    3               0.1
 
 	RoBERTa_large+guoday            original        False   epoch3 _bs64_lr5e-6	3		0.1	# learning rate matters?
 
