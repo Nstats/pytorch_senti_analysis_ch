@@ -1033,15 +1033,15 @@ class BertForSequenceClassification(BertPreTrainedModel):
             for gru in self.gru_MLP:
                 gru.flatten_parameters()
                 output, hidden = gru(sequence_output)
-                print('output.size = ', output.size())  # [batch, max_l*split_num, 2*hidden_size]
-                print('hidden.size = ', hidden.size())  # [num_layers * num_directions, batch, hidden_size]
+                # print('output.size = ', output.size())  # [batch, max_l*split_num, 2*hidden_size]
+                # print('hidden.size = ', hidden.size())  # [num_layers * num_directions, batch, hidden_size]
             hidden_0, hidden_1 = hidden.split(1, dim=0)
             final_hidden = torch.cat([hidden_0, hidden_1], dim=0).reshape(input_ids.size(0), -1)
             hidden_logits = self.classifier_GRU_MLP_1(final_hidden)
             hidden_logits = nn.functional.relu(hidden_logits)
             hidden_logits = self.dropout(hidden_logits)
             logits = self.classifier_GRU_MLP_2(hidden_logits)
-            print('GRU_MLP logits size=', logits.size())
+            # print('GRU_MLP logits size=', logits.size())
 
         else:
             raise ValueError('classifier type not in list.')
