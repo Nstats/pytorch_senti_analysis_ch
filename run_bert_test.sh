@@ -9,7 +9,7 @@ python run_bert.py \
 --do_test \
 --data_dir ./data/data_0 \
 --output_dir ./output_test/fold_0 \
---classifier 'guoday' \
+--classifier 'GRU_MLP' \
 --max_seq_length 10 \
 --split_num 4 \
 --lstm_hidden_size 512 \

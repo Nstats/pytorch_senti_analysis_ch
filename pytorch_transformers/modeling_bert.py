@@ -966,19 +966,28 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.lstm_dropout)
         self.pooling = nn.Linear(config.hidden_size, config.hidden_size)
-        self.classifier = nn.Linear(config.lstm_hidden_size*2, self.config.num_labels)
+        self.classifier_guoday = nn.Linear(config.lstm_hidden_size*2, self.config.num_labels)
+        self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
+        self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
+        self.classifier_GRU_MLP_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
         self.classifier_type = config.classifier
         
-        self.W=[]
-        self.gru=[]
+        self.W = []
+        self.gru = []
         for i in range(config.lstm_layers):
             self.W.append(nn.Linear(config.lstm_hidden_size*2, config.lstm_hidden_size*2))
-            self.gru.append(nn.GRU(config.hidden_size if i==0 else config.lstm_hidden_size*4, config.lstm_hidden_size,num_layers=1,bidirectional=True,batch_first=True).cuda() )
-        self.W=nn.ModuleList(self.W)
-        self.gru=nn.ModuleList(self.gru)      
+            self.gru.append(nn.GRU(config.hidden_size if i == 0 else config.lstm_hidden_size*4,
+                                   config.lstm_hidden_size, num_layers=1, bidirectional=True, batch_first=True).cuda())
+        self.W = nn.ModuleList(self.W)
+        self.gru = nn.ModuleList(self.gru)
+
+        self.gru_MLP = []
+        for i in range(config.lstm_layers):
+            self.gru_MLP.append(nn.GRU(config.hidden_size, config.lstm_hidden_size,
+                                       num_layers=1, bidirectional=True, batch_first=True).cuda())
+        self.gru_MLP = nn.ModuleList(self.gru_MLP)
+
         self.apply(self.init_weights)
-        self.split_num = args.split_num
-        self.BERT_hidden_size = config.hidden_size
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None,
                 position_ids=None, head_mask=None):
@@ -1007,22 +1016,32 @@ class BertForSequenceClassification(BertPreTrainedModel):
             # hidden=output.mean(1)
             # hidden=nn.functional.tanh(self.pooling(hidden))
             # hidden=self.dropout(hidden)
-            logits = self.classifier(hidden)
+            logits = self.classifier_guoday(hidden)
+            # print('guoday logits size=', logits.size())  # [3,3]
 
         elif self.classifier_type == 'MLP':
             hidden = output.reshape(input_ids.size(0), -1).contiguous()  # [batch_size, num_split*hidden_size]
             hidden = self.dropout(hidden)
-            cls_func = nn.Linear(self.split_num*self.BERT_hidden_size, 3)
-            logits = cls_func(hidden)
+            logits = self.classifier_MLP(hidden)
 
         elif self.classifier_type == 'GRU_MLP':
             sequence_output = outputs[0]
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
-            for w, gru in zip(self.W, self.gru):
+            sequence_output = sequence_output.reshape(
+                input_ids.size(0), input_ids.size(1)*sequence_output.size(1), -1).contiguous()
+            # print('sequence_output.size = ', sequence_output.size())  # [batch_size, max_l*split_num, hidden_size]
+            for gru in self.gru_MLP:
                 gru.flatten_parameters()
                 output, hidden = gru(sequence_output)
-                output = self.dropout(output)
-            logits = self.classifier(output)
+                print('output.size = ', output.size())  # [batch, max_l*split_num, 2*hidden_size]
+                print('hidden.size = ', hidden.size())  # [num_layers * num_directions, batch, hidden_size]
+            hidden_0, hidden_1 = hidden.split(1, dim=0)
+            final_hidden = torch.cat([hidden_0, hidden_1], dim=0).reshape(input_ids.size(0), -1)
+            hidden_logits = self.classifier_GRU_MLP_1(final_hidden)
+            hidden_logits = nn.functional.relu(hidden_logits)
+            hidden_logits = self.dropout(hidden_logits)
+            logits = self.classifier_GRU_MLP_2(hidden_logits)
+            print('GRU_MLP logits size=', logits.size())
 
         else:
             raise ValueError('classifier type not in list.')
