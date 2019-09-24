@@ -335,12 +335,12 @@ def main():
     # tensorboard_log_dir = args.output_dir
 
     # loss_now = tf.placeholder(dtype=tf.float32, name='loss_now')
-    # loss_evar = tf.placeholder(dtype=tf.float32, name='loss_evar')
+    # loss_mean = tf.placeholder(dtype=tf.float32, name='loss_mean')
     # loss_now_variable = loss_now
-    # loss_evar_variable = loss_evar
+    # loss_mean_variable = loss_mean
     # train_loss = tf.summary.scalar('train_loss', loss_now_variable)
-    # dev_loss_evar = tf.summary.scalar('dev_loss_evar', loss_evar_variable)
-    # merged = tf.summary.merge([train_loss, dev_loss_evar])
+    # dev_loss_mean = tf.summary.scalar('dev_loss_mean', loss_mean_variable)
+    # merged = tf.summary.merge([train_loss, dev_loss_mean])
 
     config = BertConfig.from_pretrained(args.model_name_or_path, num_labels=3)
 
@@ -421,7 +421,7 @@ def main():
         #     summary_writer = tf.summary.FileWriter(tensorboard_log_dir, sess.graph)
         #     sess.run(tf.global_variables_initializer())
 
-        list_loss_evar = []
+        list_loss_mean = []
         bx = []
         eval_F1 = []
         ax = []
@@ -433,7 +433,7 @@ def main():
             loss = model(input_ids=input_ids, token_type_ids=segment_ids, attention_mask=input_mask, labels=label_ids)
 
             if args.n_gpu > 1:
-                loss = loss.mean() # mean() to average on multi-gpu.
+                loss = loss.mean()  # mean() to average on multi-gpu.
             if args.gradient_accumulation_steps > 1:
                 loss = loss / args.gradient_accumulation_steps
             tr_loss += loss.item()
@@ -452,9 +452,9 @@ def main():
 
             # draw loss every 500 docs
             if (step+1) % int(500/(args.train_batch_size/args.gradient_accumulation_steps)) == 0:
-                list_loss_evar.append(round(loss_batch/8.0,4))
+                list_loss_mean.append(round(loss_batch/8.0, 4))
                 bx.append(step+1)
-                plt.plot(bx, list_loss_evar, label='loss_evar', linewidth=1, color='b', marker='o',
+                plt.plot(bx, list_loss_mean, label='loss_mean', linewidth=1, color='b', marker='o',
                          markerfacecolor='green', markersize=2)
                 plt.savefig(args.output_dir + '/labeled.jpg')
                 loss_batch = 0
@@ -480,7 +480,7 @@ def main():
                 logger.info("  %s = %s", 'global_step', str(global_step))
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
-            # do eval 10 times during training stage.
+            # do evaluation totally 10 times during training stage.
             if args.do_eval and (step + 1) % int(num_train_optimization_steps/10) == 0:
                 for file in ['dev.csv']:
                     inference_labels = []
