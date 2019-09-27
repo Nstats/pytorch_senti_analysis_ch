@@ -11,8 +11,8 @@ score	model				data		fp16	paras			split_num	dropout
 
 	RoBERTa_large+guoday            original        False   epoch5 _bs128_lr5e-6	3		0.1	# learning rate matters?
 
+	RoBERTa_large+MLP		original        False   epoch_bs_lr5e-5     	3		0.1	# switch guoday to MLP
 	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     	3		0.1
-	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     	1		0.1
 	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     	3		0.1
 
 	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6		3		0.1
