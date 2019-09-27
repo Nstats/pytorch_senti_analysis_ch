@@ -11,7 +11,7 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_3epo_3split_128bs_2/fold_$i \
+--output_dir ./out_RoBERTa_large_5epo_3split_128bs_5e-6lr/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
 --split_num 3 \
@@ -21,12 +21,12 @@ python run_bert.py \
 --eval_steps 200 \
 --per_gpu_train_batch_size 128 \
 --gradient_accumulation_steps 64 \
---warmup_steps 20 \
+--warmup_steps 200 \
 --per_gpu_eval_batch_size 32 \
---learning_rate 5e-5 \
+--learning_rate 5e-6 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 10000
+--train_steps 15000
 
 done
 
