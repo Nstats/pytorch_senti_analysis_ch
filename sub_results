@@ -1,6 +1,7 @@
 score	model				data		fp16	paras			split_num	dropout
 0.7999	RoBERTa_large+guoday		original	False	epoch3 _bs64_lr5e-5	1		0.1
 0.8112	RoBERTa_large+guoday		original	False	epoch3 _bs64_lr5e-5	3		0.1
+
 0.7991	RoBERTa_large+guoday            original        False   epoch10_bs64_lr5e-5     1		0.1
 0.8020	RoBERTa_large+guoday            original        False   epoch10_bs64_lr5e-5     3		0.1
 
@@ -8,11 +9,13 @@ score	model				data		fp16	paras			split_num	dropout
 
 0.7873	RoBERTa_large+guoday            original        False   epoch3 _bs32_lr5e-5     3		0.1	# batch size matters?
 0.8060	RoBERTa_large+guoday            original        False   epoch3 _bs128_lr5e-5    3               0.1
+0.8071
 
 0.8035	RoBERTa_large+guoday            original        False   epoch5 _bs128_lr5e-6	3		0.1	# learning rate matters?
 
-	RoBERTa_large+MLP		original        False   epoch_bs_lr5e-5     	3		0.1	# switch guoday to MLP
-	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     	3		0.1
+0.8059	RoBERTa_large+MLP		original        False   epoch3_bs128_lr5e-5     3		0.1	# switch guoday to MLP
+0.8005	RoBERTa_large+MLP		original        False   epoch3_bs128_lr1e-5     3		0.2
+	
 	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6     	3		0.1
 
 	RoBERTa_large+guoday            original        False   epoch_bs_lr5e-6		3		0.1
