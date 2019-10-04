@@ -679,6 +679,7 @@ class BertModel(BertPreTrainedModel):
             self.encoder.layer[layer].attention.prune_heads(heads)
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, position_ids=None, head_mask=None):
+        # print('input_ids.size=', input_ids.size())  # [batch_size*num_split, max_l]
         if attention_mask is None:
             attention_mask = torch.ones_like(input_ids)
         if token_type_ids is None:
@@ -715,6 +716,7 @@ class BertModel(BertPreTrainedModel):
             head_mask = [None] * self.config.num_hidden_layers
 
         embedding_output = self.embeddings(input_ids, position_ids=position_ids, token_type_ids=token_type_ids)
+        # print('embedding_output.size=', embedding_output.size())  # [batch_size*num_split, max_l, hidden_size]
         encoder_outputs = self.encoder(embedding_output,
                                        extended_attention_mask,
                                        head_mask=head_mask)
@@ -1008,7 +1010,10 @@ class BertForSequenceClassification(BertPreTrainedModel):
 
         if self.classifier_type == 'guoday':
             for w, gru in zip(self.W, self.gru):
-                gru.flatten_parameters()
+                try:
+                    gru.flatten_parameters()
+                except:
+                    pass
                 output, hidden = gru(output)
                 output = self.dropout(output)
 
@@ -1027,21 +1032,26 @@ class BertForSequenceClassification(BertPreTrainedModel):
         elif self.classifier_type == 'GRU_MLP':
             sequence_output = outputs[0]
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
-            sequence_output = sequence_output.reshape(
+            sequence_output_ = sequence_output.reshape(
                 input_ids.size(0), input_ids.size(1)*sequence_output.size(1), -1).contiguous()
-            # print('sequence_output.size = ', sequence_output.size())  # [batch_size, max_l*split_num, hidden_size]
+            # print('sequence_output.size = ', sequence_output.size())  # [batch_size, split_num*max_l, hidden_size]
             for gru in self.gru_MLP:
-                gru.flatten_parameters()
-                output, hidden = gru(sequence_output)
+                try:
+                    gru.flatten_parameters()
+                except:
+                    pass
+                output, hidden = gru(sequence_output_)
                 # print('output.size = ', output.size())  # [batch, max_l*split_num, 2*hidden_size]
                 # print('hidden.size = ', hidden.size())  # [num_layers * num_directions, batch, hidden_size]
             hidden_0, hidden_1 = hidden.split(1, dim=0)
-            final_hidden = torch.cat([hidden_0, hidden_1], dim=0).reshape(input_ids.size(0), -1)
+            # print('hidden_0.size=', hidden_0.size())  # [1, batch_size, hidde_size]
+            final_hidden = torch.cat([hidden_0, hidden_1], dim=-1).squeeze(0)
+            # print('final_hidden.size=', final_hidden.size())  # [batch_size, 2*hidden_size]
             hidden_logits = self.classifier_GRU_MLP_1(final_hidden)
             hidden_logits = nn.functional.relu(hidden_logits)
             hidden_logits = self.dropout(hidden_logits)
             logits = self.classifier_GRU_MLP_2(hidden_logits)
-            # print('GRU_MLP logits size=', logits.size())
+            # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
 
         else:
             raise ValueError('classifier type not in list.')
