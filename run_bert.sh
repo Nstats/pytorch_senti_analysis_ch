@@ -11,22 +11,22 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_3epo_1split_128bs_MLP/fold_$i \
---classifier 'MLP' \
+--output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_MLP/fold_$i \
+--classifier 'GRU_MLP' \
 --max_seq_length 512 \
---split_num 1 \
+--split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --lstm_dropout 0.1 \
 --eval_steps 200 \
 --per_gpu_train_batch_size 128 \
---gradient_accumulation_steps 32 \
+--gradient_accumulation_steps 64 \
 --warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 4500
+--train_steps 9000
 
 done
 
@@ -36,6 +36,8 @@ training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
 python combine.py --model_prefix ./output_RoBERTa_large_3epo/fold_
 RoBErTa_large:
-8docs/step 1split 512 27g
-2docs/step 3split 512 27g
+8docs/step 1split 512 27g guoday
+2docs/step 3split 512 27g guoday
+8docs/step 1split 512 25g GRU_MLP
+2docs/step 3split 512 19g GRU_MLP
 annotation
