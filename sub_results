@@ -24,3 +24,5 @@ score	model				data		last step model	paras			split_num	dropout
 0.8071	RoBERTa_large+GRU_MLP           original        False   	epoch3_bs128_lr5e-5     3               0.1
 	RoBERTa_large+GRU_MLP           original        False   	epoch8_bs128_lr5e-5	3               0.1
 	RoBERTa_large+GRU_MLP           original        True		epoch8_bs128_lr5e-5     3               0.1
+	RoBERTa_large+GRU_highway       original        False   	epoch3_bs128_lr5e-5     1               0.1
+	RoBERTa_large+GRU_highway       original        True       	epoch3_bs128_lr5e-5     1               0.1
