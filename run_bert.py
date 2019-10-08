@@ -414,8 +414,8 @@ def main():
         tr_loss = 0
         loss_batch = 0
         nb_tr_examples, nb_tr_steps = 0, 0        
-        bar = tqdm(range(num_train_optimization_steps),total=num_train_optimization_steps)
-        train_dataloader=cycle(train_dataloader)
+        bar = tqdm(range(num_train_optimization_steps), total=num_train_optimization_steps)
+        train_dataloader = cycle(train_dataloader)
 
         # with tf.Session() as sess:
         #     summary_writer = tf.summary.FileWriter(tensorboard_log_dir, sess.graph)
@@ -473,7 +473,7 @@ def main():
                 global_step += 1
 
             # report results every 200 real batch.
-            if (step + 1) % (args.eval_steps*args.gradient_accumulation_steps) == 0:
+            if step % (args.eval_steps*args.gradient_accumulation_steps) == 0 and step > 0:
                 tr_loss = 0
                 nb_tr_examples, nb_tr_steps = 0, 0
                 logger.info("***** Report result *****")
@@ -481,7 +481,7 @@ def main():
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
             # do evaluation totally 10 times during training stage.
-            if args.do_eval and (step + 1) % int(num_train_optimization_steps/10) == 0:
+            if args.do_eval and step % int(num_train_optimization_steps/10) == 0 and step > 0:
                 for file in ['dev.csv']:
                     inference_labels = []
                     gold_labels = []
@@ -532,7 +532,7 @@ def main():
                     eval_accuracy = accuracy(inference_logits, gold_labels)
                     # draw loss.
                     eval_F1.append(round(eval_accuracy, 4))
-                    ax.append(step+1)
+                    ax.append(step)
                     plt.plot(ax, eval_F1, label='eval_F1', linewidth=1, color='r', marker='o',
                              markerfacecolor='blue', markersize=2)
                     for a, b in zip(ax, eval_F1):
@@ -561,9 +561,17 @@ def main():
                         output_model_file = os.path.join(args.output_dir, "pytorch_model.bin")
                         torch.save(model_to_save.state_dict(), output_model_file)
                         print("="*80)
+                    if step / int(num_train_optimization_steps/10) > 9.9:
+                        print("=" * 80)
+                        print("End of training. Saving Model......")
+                        # Save a trained model, only save the model it-self
+                        model_to_save = model.module if hasattr(model, 'module') else model
+                        output_model_file = os.path.join(args.output_dir, "pytorch_model_final_step.bin")
+                        torch.save(model_to_save.state_dict(), output_model_file)
+                        print("=" * 80)
 
     if args.do_test:
-        print('________________________now testing______________________________')
+        print('___________________now testing for best eval f1 model_________________________')
         del model
         gc.collect()
         args.do_train = False
@@ -583,7 +591,7 @@ def main():
         elif args.n_gpu > 1:
             model = torch.nn.DataParallel(model)        
 
-        for file, flag in [('dev.csv', 'dev'), ('test.csv', 'test')]:
+        for file, flag in [('test.csv', 'test')]:
             inference_labels = []
             gold_labels = []
             eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = False)
@@ -593,7 +601,7 @@ def main():
             all_segment_ids = torch.tensor(select_field(eval_features, 'segment_ids'), dtype=torch.long)
             all_label = torch.tensor([f.label for f in eval_features], dtype=torch.long)                           
 
-            eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids,all_label)
+            eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label)
             # Run prediction for full data
             eval_sampler = SequentialSampler(eval_data)
             eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
@@ -623,6 +631,73 @@ def main():
                 df['label_1'] = logits[:, 1]
                 df['label_2'] = logits[:, 2]
                 df[['id', 'label_0', 'label_1', 'label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False)
+            else:
+                raise ValueError('flag not in [dev, test]')
+
+        print('___________________now testing for final model_________________________')
+        del model
+        gc.collect()
+        args.do_train = False
+        model = BertForSequenceClassification.from_pretrained(
+            os.path.join(args.output_dir, "pytorch_model_final_step.bin"),
+            args, config=config)
+        if args.fp16:
+            model.half()
+        model.to(device)
+        if args.local_rank != -1:
+            try:
+                from apex.parallel import DistributedDataParallel as DDP
+            except ImportError:
+                raise ImportError("Please install apex from "
+                                  "https://www.github.com/nvidia/apex to use distributed and fp16 training.")
+
+            model = DDP(model)
+        elif args.n_gpu > 1:
+            model = torch.nn.DataParallel(model)
+
+        for file, flag in [('test.csv', 'test')]:
+            inference_labels = []
+            gold_labels = []
+            eval_examples = read_examples(os.path.join(args.data_dir, file), is_training=False)
+            eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,
+                                                         args.split_num, False)
+            all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
+            all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
+            all_segment_ids = torch.tensor(select_field(eval_features, 'segment_ids'), dtype=torch.long)
+            all_label = torch.tensor([f.label for f in eval_features], dtype=torch.long)
+
+            eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label)
+            # Run prediction for full data
+            eval_sampler = SequentialSampler(eval_data)
+            eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
+
+            model.eval()
+            eval_loss, eval_accuracy = 0, 0
+            nb_eval_steps, nb_eval_examples = 0, 0
+            for input_ids, input_mask, segment_ids, label_ids in eval_dataloader:
+                input_ids = input_ids.to(device)
+                input_mask = input_mask.to(device)
+                segment_ids = segment_ids.to(device)
+                label_ids = label_ids.to(device)
+
+                with torch.no_grad():
+                    logits = model(input_ids=input_ids, token_type_ids=segment_ids,
+                                   attention_mask=input_mask).detach().cpu().numpy()
+                    # print('test_logits=', logits)
+                label_ids = label_ids.to('cpu').numpy()
+                inference_labels.append(logits)
+                gold_labels.append(label_ids)
+            gold_labels = np.concatenate(gold_labels, 0)
+            logits = np.concatenate(inference_labels, 0)
+            if flag == 'dev':
+                print(flag, accuracy(logits, gold_labels))
+            elif flag == 'test':
+                df = pd.read_csv(os.path.join(args.data_dir, file))
+                df['label_0'] = logits[:, 0]
+                df['label_1'] = logits[:, 1]
+                df['label_2'] = logits[:, 2]
+                df[['id', 'label_0', 'label_1', 'label_2']].to_csv(
+                    os.path.join(args.output_dir, "sub_final_step.csv"), index=False)
             else:
                 raise ValueError('flag not in [dev, test]')
 
