@@ -481,7 +481,7 @@ def main():
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
             # do evaluation totally 10 times during training stage.
-            if args.do_eval and step % int(num_train_optimization_steps/10) == 0 and step > 0:
+            if args.do_eval and (step+1) % int(num_train_optimization_steps/10) == 0 and step > 0:
                 for file in ['dev.csv']:
                     inference_labels = []
                     gold_labels = []
@@ -561,7 +561,7 @@ def main():
                         output_model_file = os.path.join(args.output_dir, "pytorch_model.bin")
                         torch.save(model_to_save.state_dict(), output_model_file)
                         print("="*80)
-                    if step / int(num_train_optimization_steps/10) > 9.9:
+                    if (step+1) / int(num_train_optimization_steps/10) > 9.5:
                         print("=" * 80)
                         print("End of training. Saving Model......")
                         # Save a trained model, only save the model it-self
