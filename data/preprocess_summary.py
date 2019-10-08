@@ -1,6 +1,10 @@
 import pandas as pd
 import os
 import random
+from pyhanlp import *
+import numpy as np
+
+TextRankSentence = JClass("com.hankcs.hanlp.summary.TextRankSentence")
 
 train_df = pd.read_csv("./data/Train_DataSet.csv")
 train_label_df = pd.read_csv("./data/Train_DataSet_Label.csv")
@@ -11,8 +15,27 @@ train_df = train_df[train_df['label'] != -1]
 train_df['label'] = train_df['label'].astype(int)
 test_df['label'] = 0
 
-test_df['content'] = test_df['content'].fillna(' ')
-train_df['content'] = train_df['content'].fillna(' ')
+test_content = test_df['content'].fillna(' ')
+test_content_ = []
+for ele in test_content:
+    if len(ele) >= 100:
+        ele_ = HanLP.getSummary(ele, 600)
+        # ele_ = HanLP.extractSummary(ele, 20)
+        test_content_.append(ele_)
+    else:
+        test_content_.append(ele)
+test_df['content'] = np.asarray(test_content_)
+
+train_content = train_df['content'].fillna(' ').values
+train_content_ = []
+for ele in train_content:
+    if len(ele) >= 100:
+        ele_ = HanLP.getSummary(ele, 600)
+        # ele_ = HanLP.extractSummary(ele, 20)
+        train_content_.append(ele_)
+    else:
+        train_content_.append(ele)
+train_df['content'] = np.asarray(train_content_)
 test_df['title'] = test_df['title'].fillna(' ')
 train_df['title'] = train_df['title'].fillna(' ')
 
