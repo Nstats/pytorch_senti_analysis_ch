@@ -11,7 +11,7 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_MLP/fold_$i \
+--output_dir ./out_RoBERTa_large_8epo_3split_128bs_GRU_MLP/fold_$i \
 --classifier 'GRU_MLP' \
 --max_seq_length 512 \
 --split_num 3 \
@@ -26,7 +26,7 @@ python run_bert.py \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 9000
+--train_steps 24000
 
 done
 
