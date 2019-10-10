@@ -966,7 +966,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.num_labels = config.num_labels
 
         self.bert = BertModel(config)
-        self.dropout = nn.Dropout(config.lstm_dropout)
+        self.dropout = nn.Dropout(config.dropout)
         self.pooling = nn.Linear(config.hidden_size, config.hidden_size)
         self.classifier_guoday = nn.Linear(config.lstm_hidden_size*2, self.config.num_labels)
         self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
@@ -1034,6 +1034,30 @@ class BertForSequenceClassification(BertPreTrainedModel):
             logits = self.classifier_MLP(hidden)
 
         elif self.classifier_type == 'GRU_MLP':
+            sequence_output = outputs[0]
+            # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
+            sequence_output_ = sequence_output.reshape(
+                input_ids.size(0), input_ids.size(1)*sequence_output.size(1), -1).contiguous()
+            # print('sequence_output.size = ', sequence_output.size())  # [batch_size, split_num*max_l, hidden_size]
+            for gru in self.gru_MLP:
+                try:
+                    gru.flatten_parameters()
+                except:
+                    pass
+                output, hidden = gru(sequence_output_)
+                # print('output.size = ', output.size())  # [batch, max_l*split_num, 2*hidden_size]
+                # print('hidden.size = ', hidden.size())  # [num_layers * num_directions, batch, hidden_size]
+            hidden_0, hidden_1 = hidden.split(1, dim=0)
+            # print('hidden_0.size=', hidden_0.size())  # [1, batch_size, hidde_size]
+            final_hidden = torch.cat([hidden_0, hidden_1], dim=-1).squeeze(0)
+            # print('final_hidden.size=', final_hidden.size())  # [batch_size, 2*hidden_size]
+            hidden_logits = self.classifier_GRU_MLP_1(final_hidden)
+            hidden_logits = nn.functional.relu(hidden_logits)
+            hidden_logits = self.dropout(hidden_logits)
+            logits = self.classifier_GRU_MLP_2(hidden_logits)
+            # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
+
+        elif self.classifier_type == 'GRU_MLP_v2':
             sequence_output = outputs[0]
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
             sequence_output_ = sequence_output.reshape(

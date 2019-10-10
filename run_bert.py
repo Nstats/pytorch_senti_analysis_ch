@@ -265,7 +265,7 @@ def main():
                         help="")
     parser.add_argument("--lstm_layers", default=2, type=int,
                         help="")
-    parser.add_argument("--lstm_dropout", default=0.5, type=float,
+    parser.add_argument("--dropout", default=0.5, type=float,
                         help="")    
     
     parser.add_argument("--train_steps", default=-1, type=int,
@@ -343,7 +343,7 @@ def main():
     # merged = tf.summary.merge([train_loss, dev_loss_mean])
 
     config = BertConfig.from_pretrained(args.model_name_or_path, num_labels=3)
-    # config.hidden_dropout_prob = args.lstm_dropout
+    config.hidden_dropout_prob = args.dropout
 
     # Prepare model
     model = BertForSequenceClassification.from_pretrained(args.model_name_or_path, args, config=config)

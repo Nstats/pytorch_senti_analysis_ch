@@ -45,11 +45,11 @@ to trainRoBERTa_large+GRU_MLP           clean           False		epoch8_bs128_lr5e
 0.7726  RoBERTa_large+MLP		        clean&summary   False   	epoch8_bs128_lr5e-5     1		    0.1
 as aboveRoBERTa_large+MLP		        clean&summary   True        epoch8_bs128_lr5e-5     1		    0.1
 
-to trainRoBERTa_large+GRU_MLP_256l      original        False   	epoch8_bs64_lr5e-5      1           0.1
-to trainRoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs64_lr5e-5      1           0.1
+0.8011  RoBERTa_large+GRU_MLP_256l      original        False   	epoch8_bs64_lr5e-5      1           0.1
+0.7972  RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs64_lr5e-5      1           0.1
 
-        RoBERTa_large+GRU_MLP_256l      original        False   	epoch8_bs64_lr5e-5	    1           0.3
-        RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs64_lr5e-5      1           0.3
+to trainRoBERTa_large+GRU_MLP_256l      original        False   	epoch8_bs128_lr5e-5	    1           0.3
+to trainRoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs128_lr5e-5     1           0.3
 
         RoBERTa_large+GRU_MLP_256l      original        False   	epoch8_bs64_lr5e-5	    5           0.1
         RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs64_lr5e-5      5           0.1

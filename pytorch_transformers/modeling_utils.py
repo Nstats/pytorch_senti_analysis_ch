@@ -440,7 +440,7 @@ class PreTrainedModel(nn.Module):
             config = cls.config_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
         config.lstm_hidden_size = args.lstm_hidden_size
         config.lstm_layers = args.lstm_layers
-        config.lstm_dropout = args.lstm_dropout
+        config.dropout = args.dropout
         config.classifier = args.classifier
         # Load model
         if pretrained_model_name_or_path in cls.pretrained_model_archive_map:
