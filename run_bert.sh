@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-python ./data/preprocess.py;
+python ./data/preprocess_clean.py;
 export CUDA_VISIBLE_DEVICES=0
 for((i=0;i<5;i++));
 
@@ -11,7 +11,7 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_8epo_3split_128bs_GRU_MLP/fold_$i \
+--output_dir ./out_RoBERTa_large_8epo_3split_128bs_GRU_MLP_clean/fold_$i \
 --classifier 'GRU_MLP' \
 --max_seq_length 512 \
 --split_num 3 \
@@ -31,7 +31,7 @@ python run_bert.py \
 done
 
 :<<annotation
---classifier:'guoday' or 'MLP' or 'GRU_MLP'
+--classifier:'guoday' or 'MLP' or 'GRU_MLP' or 'GRU_highway'
 training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_accumulation_steps)
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
 python combine.py --model_prefix ./output_RoBERTa_large_3epo/fold_
