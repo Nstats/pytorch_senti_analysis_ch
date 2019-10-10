@@ -343,9 +343,10 @@ def main():
     # merged = tf.summary.merge([train_loss, dev_loss_mean])
 
     config = BertConfig.from_pretrained(args.model_name_or_path, num_labels=3)
+    # config.hidden_dropout_prob = args.lstm_dropout
 
     # Prepare model
-    model = BertForSequenceClassification.from_pretrained(args.model_name_or_path,args,config=config)
+    model = BertForSequenceClassification.from_pretrained(args.model_name_or_path, args, config=config)
 
     if args.fp16:
         model.half()
