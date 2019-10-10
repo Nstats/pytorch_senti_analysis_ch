@@ -13,11 +13,29 @@ score	model				            data		    last step	paras			        split_num	dropout
 0.8071
 0.8035	RoBERTa_large+guoday            original        False   	epoch5 _bs128_lr5e-6	3		    0.1	# learning rate matters?
 
+        RoBERTa_large+guoday            original        False   	epoch8_bs128_lr5e-5     3		    0.1
+        RoBERTa_large+guoday            original        True        epoch8_bs128_lr5e-5     3		    0.1
+
+        RoBERTa_large+guoday            clean           False   	epoch8_bs128_lr5e-5     3		    0.1
+        RoBERTa_large+guoday            clean           True        epoch8_bs128_lr5e-5     3		    0.1
+
+        RoBERTa_large+guoday            clean&summary   False   	epoch8_bs128_lr5e-5     1		    0.1
+        RoBERTa_large+guoday            clean&summary   True        epoch8_bs128_lr5e-5     1		    0.1
+
 -------------MLP---------------
 0.8059	RoBERTa_large+MLP		        original        False   	epoch3_bs128_lr5e-5     3		    0.1	# switch guoday to MLP
 0.8005	RoBERTa_large+MLP		        original        False   	epoch3_bs128_lr1e-5     3		    0.2
 0.7922	RoBERTa_large+MLP               original        False   	epoch5_bs128_lr1e-5     3           0.2
 0.8021	RoBERTa_large+MLP               original        False   	epoch3_bs128_lr1e-5     1           0.1
+
+        RoBERTa_large+MLP		        original        False   	epoch8_bs128_lr5e-5     3		    0.1
+        RoBERTa_large+MLP		        original        True        epoch8_bs128_lr5e-5     3		    0.1
+
+        RoBERTa_large+MLP		        clean           False   	epoch8_bs128_lr5e-5     3		    0.1
+        RoBERTa_large+MLP		        clean           True        epoch8_bs128_lr5e-5     3		    0.1
+
+        RoBERTa_large+MLP		        clean&summary   False   	epoch8_bs128_lr5e-5     1		    0.1
+        RoBERTa_large+MLP		        clean&summary   True        epoch8_bs128_lr5e-5     1		    0.1
 
 -----------GRU_MLP-------------
 0.8052	RoBERTa_large+GRU_MLP           original        False   	epoch3_bs128_lr5e-5     1		    0.1	# GRU_MLP
