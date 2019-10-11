@@ -39,8 +39,8 @@ score	model				            data		    last step	paras			        split_num	dropout
 0.8057  RoBERTa_large+GRU_MLP           original        False   	epoch8_bs128_lr5e-5	    3           0.1
 0.7963  RoBERTa_large+GRU_MLP           original        True		epoch8_bs128_lr5e-5     3           0.1
 
-to trainRoBERTa_large+GRU_MLP           clean           True		epoch8_bs128_lr5e-5     3           0.1
-to trainRoBERTa_large+GRU_MLP           clean           False		epoch8_bs128_lr5e-5     3           0.1
+0.8039  RoBERTa_large+GRU_MLP           clean           True		epoch8_bs128_lr5e-5     3           0.1
+0.7935  RoBERTa_large+GRU_MLP           clean           False		epoch8_bs128_lr5e-5     3           0.1
 
 0.7726  RoBERTa_large+MLP		        clean&summary   False   	epoch8_bs128_lr5e-5     1		    0.1
 as aboveRoBERTa_large+MLP		        clean&summary   True        epoch8_bs128_lr5e-5     1		    0.1
@@ -51,7 +51,10 @@ as aboveRoBERTa_large+MLP		        clean&summary   True        epoch8_bs128_lr5e
 0.7999  RoBERTa_large+GRU_MLP_256l      original        False   	epoch8_bs128_lr5e-5	    1           0.3
 to test RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs128_lr5e-5     1           0.3
 
-        RoBERTa_large+GRU_MLP           balanced v2     False   	epoch5_bs128_lr5e-5	    3           0.1
+        RoBERTa_large+GRU_MLP           original        False       epoch5_bs128_lr5e-5     3           0.2
+        RoBERTa_large+GRU_MLP           original        True        epoch5_bs128_lr5e-5     3           0.2
+
+to trainRoBERTa_large+GRU_MLP           balanced v2     False   	epoch5_bs128_lr5e-5	    3           0.1
         RoBERTa_large+GRU_MLP           balanced v2     True		epoch5_bs128_lr5e-5     3           0.1
 
 -----------GRU_highway----------
