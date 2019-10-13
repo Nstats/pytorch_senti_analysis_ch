@@ -64,7 +64,7 @@ if __name__ == '__main__':
         for j in range(5):
             if j != i:
                 train_index += K_fold[j]
-        train_df = balance_data(train_df.iloc[train_index])
-        train_df.to_csv("./data/data_{}/train.csv".format(i))
+        train_df_balanced = balance_data(train_df.iloc[train_index])
+        train_df_balanced.to_csv("./data/data_{}/train.csv".format(i))
         train_df.iloc[dev_index].to_csv("./data/data_{}/dev.csv".format(i))
         test_df.to_csv("./data/data_{}/test.csv".format(i))
