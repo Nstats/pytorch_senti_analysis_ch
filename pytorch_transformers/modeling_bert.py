@@ -1064,7 +1064,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         elif self.classifier_type == 'GRU_MLP_v2':
             sequence_output = outputs[0]
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
-            sequence_output_ = sequence_output.split(input_ids.size(0), dim=0).contigouous()
+            sequence_output_ = sequence_output.split(input_ids.size(0), dim=0)
             # a tuple: ([batch_size, max_l, hidden_size],...,[batch_size, max_l, hidden_size])
             GRU_results = []
             for tensor in sequence_output_:
@@ -1121,7 +1121,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         elif self.classifier_type == 'GRU_highway_v2':
             sequence_output = outputs[0]
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
-            sequence_output_ = sequence_output.split(input_ids.size(0), dim=0).contigouous()
+            sequence_output_ = sequence_output.split(input_ids.size(0), dim=0)
             # a tuple: ([batch_size, max_l, hidden_size],...,[batch_size, max_l, hidden_size])
             GRU_results = []
             for tensor in sequence_output_:
