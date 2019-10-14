@@ -972,7 +972,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
         self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
         self.classifier_GRU_MLP_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
-        self.classifier_GRU_MLP_v2_1 = nn.Linear(args.lstm_hidden_size * 2 * self.args.split_num,
+        self.classifier_GRU_MLP_v2_1 = nn.Linear(args.lstm_hidden_size * 2 * args.split_num,
                                                  args.lstm_hidden_size * 2).cuda()
         self.classifier_GRU_MLP_v2_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
         self.classifier_GRU_highway_1 = nn.Linear(args.lstm_hidden_size*2+args.split_num*args.lstm_hidden_size*2,
