@@ -1,7 +1,8 @@
 import pandas as pd
 import os
-import jieba
+import re
 import random
+import jieba
 
 
 def replace(df, replace_dict):
@@ -37,6 +38,33 @@ def replace(df, replace_dict):
     return add_df_
 
 
+def balanced_data_v2(df):
+    '''
+    :param
+        df: a dataframe(['id', 'titla','content', 'label']) with unbalanced data
+    :return:
+        df_out: a dataframe(['id', 'titla','content', 'label']) with balanced data
+    '''
+    df_0 = df[df['label'] == 0]
+    df_1 = df[df['label'] == 1]
+    df_2 = df[df['label'] == 2]
+    print(len(df_0), len(df_1), len(df_2))
+    maxNum = max(len(df_0), len(df_1), len(df_2))
+
+    if len(df_0) < maxNum:
+        add_df = df_0.sample(n=maxNum - len(df_0), replace=True)
+        df = df.append(replace(add_df, replace_dict=data_dict))
+    if len(df_1) < maxNum:
+        add_df = df_1.sample(n=maxNum - len(df_1), replace=True)
+        df = df.append(replace(add_df, replace_dict=data_dict))
+    if len(df_2) < maxNum:
+        add_df = df_2.sample(n=maxNum - len(df_2), replace=True)
+        df = df.append(replace(add_df, replace_dict=data_dict))
+    df_out = df
+    print('Now we have {} training samples.'.format(df_out.shape[0]))
+    return df_out
+
+
 if __name__ == '__main__':
     train_df = pd.read_csv("./data/Train_DataSet.csv")
     train_label_df = pd.read_csv("./data/Train_DataSet_Label.csv")
@@ -52,11 +80,6 @@ if __name__ == '__main__':
     test_df['title'] = test_df['title'].fillna(' ')
     train_df['title'] = train_df['title'].fillna(' ')
 
-    train_0_df = train_df[train_df['label'] == 0]
-    train_1_df = train_df[train_df['label'] == 1]
-    train_2_df = train_df[train_df['label'] == 2]
-    # print(len(train_0_df), len(train_1_df), len(train_2_df))  # 763 3646 2931
-
     cilin_dir = './data/cilin.txt'
     data_dict = {}
     with open('./data/cilin.txt', encoding='utf-8') as f:
@@ -66,22 +89,6 @@ if __name__ == '__main__':
                 if len(line_split[1]) > 1 and len(line_split[2]) > 1:
                     data_dict.update({line_split[1]: line_split[2].replace('\n', '')})
     # print(len(data_dict), data_dict)
-
-    maxNum = max(len(train_0_df), len(train_1_df), len(train_2_df))
-
-    if len(train_0_df) < maxNum:
-        add_df = train_0_df.sample(n=maxNum-len(train_0_df), replace=True)
-        add_df_ = replace(add_df, data_dict)
-        train_df = train_df.append(add_df_)
-    if len(train_1_df) < maxNum:
-        add_df = train_1_df.sample(n=maxNum - len(train_1_df), replace=True)
-        add_df_ = replace(add_df, data_dict)
-        train_df = train_df.append(add_df_)
-    if len(train_2_df) < maxNum:
-        add_df = train_2_df.sample(n=maxNum - len(train_2_df), replace=True)
-        add_df_ = replace(add_df, data_dict)
-        train_df = train_df.append(add_df_)
-    print('Now we have {} training samples.'.format(train_df.shape[0]))
 
     index = set(range(train_df.shape[0]))
     K_fold = []
@@ -104,6 +111,7 @@ if __name__ == '__main__':
         for j in range(5):
             if j != i:
                 train_index += K_fold[j]
-        train_df.iloc[train_index].to_csv("./data/data_{}/train.csv".format(i))
+        train_df_balanced = balanced_data_v2(train_df.iloc[train_index])
+        train_df_balanced.to_csv("./data/data_{}/train.csv".format(i))
         train_df.iloc[dev_index].to_csv("./data/data_{}/dev.csv".format(i))
         test_df.to_csv("./data/data_{}/test.csv".format(i))
