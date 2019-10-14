@@ -60,8 +60,8 @@ to test RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs128_lr5e-
 0.7969  RoBERTa_large+GRU_MLP           balanced v2     False   	epoch5_bs128_lr5e-5	    1           0.1
         RoBERTa_large+GRU_MLP           balanced v2     True		epoch5_bs128_lr5e-5     1           0.1
 
-to trainRoBERTa_large+GRU_MLP           ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
-        RoBERTa_large+GRU_MLP           ba except eval  True        epoch3_bs128_lr5e-5     3           0.1
+0.8114  RoBERTa_large+GRU_MLP           ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+0.8011  RoBERTa_large+GRU_MLP           ba except eval  True        epoch3_bs128_lr5e-5     3           0.1
 
 to trainRoBERTa_large+GRU_MLP           ba except eval  False       epoch3_bs128_lr5e-5     1           0.1
         RoBERTa_large+GRU_MLP           ba except eval  True        epoch3_bs128_lr5e-5     1           0.1
