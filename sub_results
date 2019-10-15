@@ -63,8 +63,8 @@ to test RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs128_lr5e-
 0.8114  RoBERTa_large+GRU_MLP           ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 0.8011  RoBERTa_large+GRU_MLP           ba except eval  True        epoch3_bs128_lr5e-5     3           0.1
 
-to trainRoBERTa_large+GRU_MLP           ba2 except eval False       epoch3_bs128_lr5e-5     1           0.1
-        RoBERTa_large+GRU_MLP           ba2 except eval True        epoch3_bs128_lr5e-5     1           0.1
+0.8045  RoBERTa_large+GRU_MLP           ba2 except eval False       epoch3_bs128_lr5e-5     3           0.1
+        RoBERTa_large+GRU_MLP           ba2 except eval True        epoch3_bs128_lr5e-5     3           0.1
 
 -----------GRU_highway----------
 0.8059  RoBERTa_large+GRU_highway       original        False   	epoch3_bs128_lr5e-5     1           0.2
@@ -82,5 +82,7 @@ to trainRoBERTa_large+GRU_MLP           ba2 except eval False       epoch3_bs128
         RoBERTa_large+GRU_MLP_v2        ba2 except eval True        epoch3_bs128_lr5e-5     1           0.1
 
 ---------GRU_highway_v2---------
+to trainRoBERTa_large+GRU_MLP_v2        ba except eval  False       epoch3_bs128_lr5e-5     1           0.1
+        RoBERTa_large+GRU_MLP_v2        ba except eval  True        epoch3_bs128_lr5e-5     1           0.1
 
 

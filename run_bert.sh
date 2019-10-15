@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-python ./data/preprocess_balanced_v2_except_eval.py;
+python ./data/preprocess_balanced_except_eval.py;
 export CUDA_VISIBLE_DEVICES=0
 for((i=0;i<5;i++));
 
@@ -11,13 +11,13 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_MLP_balanced_v2_except_eval/fold_$i \
---classifier 'GRU_MLP' \
+--output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_highway_v2_balanced_except_eval_dout0.2/fold_$i \
+--classifier 'GRU_highway_v2' \
 --max_seq_length 512 \
 --split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
---dropout 0.1 \
+--dropout 0.2 \
 --eval_steps 200 \
 --per_gpu_train_batch_size 128 \
 --gradient_accumulation_steps 64 \

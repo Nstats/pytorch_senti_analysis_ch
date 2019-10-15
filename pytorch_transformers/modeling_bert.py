@@ -973,18 +973,18 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
         self.classifier_GRU_MLP_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
         self.classifier_GRU_MLP_v2_1 = nn.Linear(args.lstm_hidden_size * 2 * args.split_num,
-                                                 args.lstm_hidden_size * 2).cuda()
-        self.classifier_GRU_MLP_v2_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
+                                                 args.lstm_hidden_size * 2 * args.split_num).cuda()
+        self.classifier_GRU_MLP_v2_2 = nn.Linear(args.lstm_hidden_size * 2 * args.split_num, config.num_labels).cuda()
         self.classifier_GRU_highway_1 = nn.Linear(
             args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2,
             args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2).cuda()
         self.classifier_GRU_highway_2 = nn.Linear(args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2,
                                                   config.num_labels).cuda()
         self.classifier_GRU_highway_v2_1 = nn.Linear(
-            args.lstm_hidden_size * 2 + args.split_num * args.lstm_hidden_size * 2,
-            args.lstm_hidden_size * 2).cuda()
+            args.split_num * config.hidden_size + args.split_num * args.lstm_hidden_size * 2,
+            args.split_num * config.hidden_size + args.split_num * args.lstm_hidden_size * 2).cuda()
         self.classifier_GRU_highway_v2_2 = nn.Linear(
-            args.lstm_hidden_size * 2 + args.split_num * config.hidden_size,
+            args.split_num * config.hidden_size + args.split_num * args.lstm_hidden_size * 2 + args.split_num * config.hidden_size,
             config.num_labels).cuda()
         self.classifier_type = config.classifier
         
