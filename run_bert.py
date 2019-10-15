@@ -527,8 +527,52 @@ def main():
                         nb_eval_steps += 1
 
                     gold_labels=np.concatenate(gold_labels,0)
+                    inference_labels = np.concatenate(inference_labels, 0)
                     inference_logits=np.concatenate(inference_logits,0)
                     model.train()
+                    ###############################################
+                    num_gold_0 = np.sum(gold_labels==0)
+                    num_gold_1 = np.sum(gold_labels==1)
+                    num_gold_2 = np.sum(gold_labels==2)
+
+                    right_0 = 0
+                    right_1 = 0
+                    right_2 = 0
+                    error_0 = 0
+                    error_1 = 0
+                    error_2 = 0
+
+                    for gold_label,inference_label in zip(gold_labels,inference_labels):
+                        if gold_label==inference_label:
+                            if gold_label==0:
+                                right_0+=1
+                            elif gold_label==1:
+                                right_1+=1
+                            else:
+                                right_2+=1
+                        elif gold_label==0:
+                            error_0+=1
+                        elif gold_label==1:
+                            error_1+=1
+                        else:
+                            error_2+=1
+
+                    prection_0 = right_0 / (num_gold_0+1e-5)
+                    prection_1 = right_1 / (num_gold_1+1e-5)
+                    prection_2 = right_2 / (num_gold_2+1e-5)
+                    recall_0 = right_0 / (error_0 + right_0+1e-5)
+                    recall_1 = right_1 / (error_1 + right_1+1e-5)
+                    recall_2 = right_2 / (error_2 + right_2+1e-5)
+                    f10 = 2*prection_0*recall_0/(prection_0+recall_0+1e-5)
+                    f11 = 2*prection_1*recall_1/(prection_1+recall_1+1e-5)
+                    f12 = 2*prection_2*recall_2/(prection_2+recall_2+1e-5)
+
+                    output_dev_result_file = os.path.join(args.output_dir, "dev_results.txt")
+                    with open(output_dev_result_file, 'a', encoding='utf-8') as f:
+                        f.write('precision:'+str(prection_0) + ' ' + str(prection_1) + ' ' + str(prection_2) + '\n')
+                        f.write('recall:'+str(recall_0) + ' ' + str(recall_1) + ' ' + str(recall_2) + '\n')
+                        f.write('f1:'+str(f10) + ' ' + str(f11) + ' ' + str(f12) + '\n' + '\n')
+
                     eval_loss = eval_loss / nb_eval_steps
                     eval_accuracy = accuracy(inference_logits, gold_labels)
                     # draw loss.
