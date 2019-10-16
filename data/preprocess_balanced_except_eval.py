@@ -2,6 +2,17 @@ import pandas as pd
 import os
 import re
 import random
+from langconv import *
+
+
+def Traditional2Simplified(sentence):
+    '''
+    将sentence中的繁体字转为简体字
+    :param sentence: 待转换的句子
+    :return: 将句子中繁体字转换为简体字之后的句子
+    '''
+    sentence = Converter('zh-hans').convert(sentence)
+    return sentence
 
 
 def balance_data(df):
@@ -42,6 +53,30 @@ if __name__ == '__main__':
     train_df['content'] = train_df['content'].fillna(' ')
     test_df['title'] = test_df['title'].fillna(' ')
     train_df['title'] = train_df['title'].fillna(' ')
+
+    train_title = []
+    for line in train_df['title']:
+        line = Traditional2Simplified(line)
+        train_title.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    train_df['title'] = train_title
+
+    test_title = []
+    for line in test_df['title']:
+        line = Traditional2Simplified(line)
+        test_title.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    test_df['title'] = test_title
+
+    train_content = []
+    for line in train_df['content']:
+        line = Traditional2Simplified(line)
+        train_content.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    train_df['content'] = train_content
+
+    test_content = []
+    for line in test_df['content']:
+        line = Traditional2Simplified(line)
+        test_content.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    test_df['content'] = test_content
 
     index = set(range(train_df.shape[0]))
     K_fold = []

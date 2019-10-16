@@ -18,6 +18,7 @@ def Traditional2Simplified(sentence):
 
 
 def clean_data(line):
+    line = line.replace('\n', '').replace('\\n', '').replace(' ', '')
     text_list = re.findall("[^\u4E00-\u9FFF]{3,}", line)
     for item in text_list:
         test = re.sub("[0-9.]*", "", item)
