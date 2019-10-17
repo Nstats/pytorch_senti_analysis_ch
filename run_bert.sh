@@ -11,17 +11,17 @@ python run_bert.py \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_highway_balanced_except_eval/fold_$i \
---classifier 'GRU_highway' \
+--output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_MLP_mybalanced_except_eval/fold_$i \
+--classifier 'GRU_MLP' \
 --max_seq_length 512 \
 --split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --dropout 0.1 \
 --eval_steps 200 \
---per_gpu_train_batch_size 128 \
---gradient_accumulation_steps 64 \
---warmup_steps 0 \
+--per_gpu_train_batch_size 64 \
+--gradient_accumulation_steps 32 \
+--warmup_steps 500 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \

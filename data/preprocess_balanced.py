@@ -13,10 +13,10 @@ if __name__ == '__main__':
     train_df['label'] = train_df['label'].astype(int)
     test_df['label'] = 0
 
-    test_df['content'] = test_df['content'].fillna(' ')
-    train_df['content'] = train_df['content'].fillna(' ')
-    test_df['title'] = test_df['title'].fillna(' ')
-    train_df['title'] = train_df['title'].fillna(' ')
+    test_df['content'] = test_df['content'].fillna('无 ')
+    train_df['content'] = train_df['content'].fillna('无 ')
+    test_df['title'] = test_df['title'].fillna('无 ')
+    train_df['title'] = train_df['title'].fillna('无 ')
 
     train_0_df = train_df[train_df['label'] == 0]
     train_1_df = train_df[train_df['label'] == 1]
