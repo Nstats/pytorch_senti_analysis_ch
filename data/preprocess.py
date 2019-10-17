@@ -22,33 +22,33 @@ train_df=train_df[train_df['label']!=-1]
 train_df['label']=train_df['label'].astype(int)
 test_df['label']=0
 
-test_df['content']=test_df['content'].fillna('空 ')
-train_df['content']=train_df['content'].fillna('空 ')
-test_df['title']=test_df['title'].fillna('空 ')
-train_df['title']=train_df['title'].fillna('空 ')
+test_df['content']=test_df['content'].fillna(' ')
+train_df['content']=train_df['content'].fillna(' ')
+test_df['title']=test_df['title'].fillna(' ')
+train_df['title']=train_df['title'].fillna(' ')
 
 train_title = []
 for line in train_df['title']:
     line = Traditional2Simplified(line)
-    train_title.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    train_title.append(line.replace('\n', '').replace('\\n', '').replace('\t', ''))
 train_df['title'] = train_title
 
 test_title = []
 for line in test_df['title']:
     line = Traditional2Simplified(line)
-    test_title.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    test_title.append(line.replace('\n', '').replace('\\n', '').replace('\t', ''))
 test_df['title'] = test_title
 
 train_content = []
 for line in train_df['content']:
     line = Traditional2Simplified(line)
-    train_content.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    train_content.append(line.replace('\n', '').replace('\\n', '').replace('\t', ''))
 train_df['content'] = train_content
 
 test_content = []
 for line in test_df['content']:
     line = Traditional2Simplified(line)
-    test_content.append(line.replace('\n', '').replace('\\n', '').replace(' ', '').replace('\t', ''))
+    test_content.append(line.replace('\n', '').replace('\\n', '').replace('\t', ''))
 test_df['content'] = test_content
 
 index=set(range(train_df.shape[0]))
