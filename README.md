@@ -12,7 +12,7 @@
 | Roberta-mid | 80.5 |
 | Roberta-large (max_seq_length=512, split_num=1) | 81.25 |
 
-3.调整参数至适合自己的硬件条件后运行bash run_bert.sh可进入模型训练阶段，模型训练结果会自动保存在./data文件夹下。训练完成后运行python combine.py --model_prefix ./your_output_dir 即可得到预测结果文件sub.csv。
+3.调整参数至适合自己的硬件条件后运行bash run_bert.sh可进入模型训练阶段，模型训练结果会自动保存在run_bert.sh中自己设置的输出文件夹下。训练完成后运行python combine.py --model_prefix ./your_output_dir 即可得到预测结果文件sub.csv。
 
 
 
