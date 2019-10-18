@@ -606,6 +606,7 @@ def main():
                         output_model_file = os.path.join(args.output_dir, "pytorch_model.bin")
                         torch.save(model_to_save.state_dict(), output_model_file)
                         print("="*80)
+                    '''
                     if (step+1) / int(num_train_optimization_steps/10) > 9.5:
                         print("=" * 80)
                         print("End of training. Saving Model......")
@@ -614,6 +615,7 @@ def main():
                         output_model_file = os.path.join(args.output_dir, "pytorch_model_final_step.bin")
                         torch.save(model_to_save.state_dict(), output_model_file)
                         print("=" * 80)
+                    '''
 
     if args.do_test:
         print('___________________now testing for best eval f1 model_________________________')
@@ -679,6 +681,7 @@ def main():
             else:
                 raise ValueError('flag not in [dev, test]')
 
+        '''
         print('___________________now testing for final model_________________________')
         del model
         gc.collect()
@@ -745,7 +748,7 @@ def main():
                     os.path.join(args.output_dir, "sub_final_step.csv"), index=False)
             else:
                 raise ValueError('flag not in [dev, test]')
-
+        '''
 
 if __name__ == "__main__":
     main()
