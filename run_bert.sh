@@ -6,12 +6,12 @@ for((i=0;i<5;i++));
 do
 python run_bert.py \
 --model_type bert \
---model_name_or_path chinese_roberta_wwm_large_ext_pytorch \
+--model_name_or_path my_roberta_large_20000 \
 --do_train \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_RoBERTa_large_wwm_3epo_3split_128bs_GRU_MLP_mybalanced_except_eval/fold_$i \
+--output_dir ./out_my_roberta_20000_3epo_3split_128bs_GRU_MLP_mybalanced_except_eval/fold_$i \
 --classifier 'GRU_MLP' \
 --max_seq_length 512 \
 --split_num 3 \

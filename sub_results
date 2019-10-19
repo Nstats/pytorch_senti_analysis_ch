@@ -75,7 +75,8 @@ to test RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs128_lr5e-
         RoBERTa_large+GRU_MLP_warm      myba except evalTrue        epoch3_bs64_lr5e-5      3           0.1
 
 to trainRoBERTa_large_wwm+GRU_MLP       myba except evalFalse       epoch3_bs128_lr5e-5     3           0.1
-        RoBERTa_large_wwm+GRU_MLP       myba except evalTrue        epoch3_bs128_lr5e-5     3           0.1
+
+to trainMy_roberta_2000+GRU_MLP         myba except evalFalse       epoch3_bs128_lr5e-5     3           0.1
 
 -----------GRU_highway----------
 0.8059  RoBERTa_large+GRU_highway       original        False   	epoch3_bs128_lr5e-5     1           0.2
