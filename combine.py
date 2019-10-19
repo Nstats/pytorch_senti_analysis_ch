@@ -21,6 +21,7 @@ df[['id', '0', '1', '2']].to_csv('./sub_probs.csv', index=False)
 df['label'] = np.argmax(df[['0', '1', '2']].values, -1)
 df[['id', 'label']].to_csv('./sub.csv', index=False)
 
+'''
 # for final step model
 df=pd.read_csv('data/submit_example.csv')
 df['0']=0
@@ -35,3 +36,4 @@ for i in range(k):
 df[['id', '0', '1', '2']].to_csv('./sub_probs_final_step.csv', index=False)
 df['label'] = np.argmax(df[['0', '1', '2']].values, -1)
 df[['id', 'label']].to_csv('./sub_final_step.csv', index=False)
+'''
