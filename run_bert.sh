@@ -6,12 +6,12 @@ for((i=0;i<5;i++));
 do
 python run_bert.py \
 --model_type bert \
---model_name_or_path my_roberta_large_20000 \
+--model_name_or_path chinese_RoBERTa_zh_Large_pytorch \
 --do_train \
 --do_eval \
 --do_test \
 --data_dir ./data/data_$i \
---output_dir ./out_my_roberta_20000_3epo_3split_128bs_GRU_MLP_mybalanced_except_eval/fold_$i \
+--output_dir ./out_RoBERTa_large_3epo_3split_128bs_GRU_MLP_mybalanced_except_eval/fold_$i \
 --classifier 'GRU_MLP' \
 --max_seq_length 512 \
 --split_num 3 \
@@ -26,7 +26,7 @@ python run_bert.py \
 --learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 13000
+--train_steps 12000
 
 done
 
