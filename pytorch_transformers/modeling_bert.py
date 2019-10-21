@@ -27,6 +27,7 @@ from io import open
 import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss, MSELoss
+from torch.autograd import Variable
 
 from .modeling_utils import (WEIGHTS_NAME, CONFIG_NAME, PretrainedConfig, PreTrainedModel,
                              prune_linear_layer, add_start_docstrings)
@@ -1073,7 +1074,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
             sequence_output_ = sequence_output.split(input_ids.size(0), dim=0)
             # a tuple: ([batch_size, max_l, hidden_size],...,[batch_size, max_l, hidden_size])
-            GRU_results = []
+            logits_results = []
             for tensor in sequence_output_:
                 for gru in self.gru_MLP:
                     try:
@@ -1087,16 +1088,16 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 # print('hidden_0.size=', hidden_0.size())  # [1, batch_size, hidde_size]
                 final_hidden = torch.cat([hidden_0, hidden_1], dim=-1).squeeze(0)
                 # print('final_hidden.size=', final_hidden.size())  # [batch_size, 2*hidden_size]
-                GRU_results.append(final_hidden)
+                hidden_final = self.dropout(nn.functional.relu(self.classifier_GRU_MLP_v2_1(final_hidden)))
+                final_logits = self.classifier_GRU_MLP_v2_2(hidden_final)
+                logits_results.append(final_logits)
+            weights = torch.ones([3], requires_grad=True)
             for i in range(self.args.split_num):
                 if i == 0:
-                    tensor_to_mlp = GRU_results[0]
+                    logits_ = weights[i]*logits_results[i]
                 else:
-                    tensor_to_mlp = torch.cat([tensor_to_mlp, GRU_results[i]], dim=1)
-            hidden_logits = self.classifier_GRU_MLP_v2_1(tensor_to_mlp)
-            hidden_logits = nn.functional.relu(hidden_logits)
-            hidden_logits = self.dropout(hidden_logits)
-            logits = self.classifier_GRU_MLP_v2_2(hidden_logits)
+                    logits_ += weights[i]*logits_results[i]
+            logits = logits_
             # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
 
         elif self.classifier_type == 'GRU_highway':
