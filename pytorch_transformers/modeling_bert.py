@@ -973,9 +973,8 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
         self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
         self.classifier_GRU_MLP_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
-        self.classifier_GRU_MLP_v2_1 = nn.Linear(args.lstm_hidden_size * 2 * args.split_num,
-                                                 args.lstm_hidden_size * 2 * args.split_num).cuda()
-        self.classifier_GRU_MLP_v2_2 = nn.Linear(args.lstm_hidden_size * 2 * args.split_num, config.num_labels).cuda()
+        self.classifier_GRU_MLP_v2_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size * 2).cuda()
+        self.classifier_GRU_MLP_v2_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
         self.classifier_GRU_highway_1 = nn.Linear(
             args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2,
             args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2).cuda()
@@ -1006,6 +1005,8 @@ class BertForSequenceClassification(BertPreTrainedModel):
 
         self.apply(self.init_weights)
         self.args = args
+        self.logits_average = nn.Linear(self.args.split_num, 1, bias=False)
+        torch.nn.init.constant_(self.logits_average.weight, 1.)
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None,
                 position_ids=None, head_mask=None):
@@ -1091,13 +1092,9 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 hidden_final = self.dropout(nn.functional.relu(self.classifier_GRU_MLP_v2_1(final_hidden)))
                 final_logits = self.classifier_GRU_MLP_v2_2(hidden_final)
                 logits_results.append(final_logits)
-            weights = torch.ones([3], requires_grad=True)
-            for i in range(self.args.split_num):
-                if i == 0:
-                    logits_ = weights[i]*logits_results[i]
-                else:
-                    logits_ += weights[i]*logits_results[i]
-            logits = logits_
+            logits_ = torch.stack(logits_results, dim=-1)
+            print(self.logits_average.weight.data)
+            logits = self.logits_average(logits_).squeeze(-1)
             # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
 
         elif self.classifier_type == 'GRU_highway':
