@@ -1092,7 +1092,6 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 final_logits = self.classifier_GRU_MLP_v2_2(hidden_final)
                 logits_results.append(final_logits)
             logits_ = torch.stack(logits_results, dim=-1)
-            print(self.logits_average.weight.data)
             logits = self.logits_average(logits_).squeeze(-1)
             # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
 
@@ -1147,7 +1146,6 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 final_logits = self.classifier_GRU_highway_v2_2(hidden_final)
                 logits_results.append(final_logits)
             logits_ = torch.stack(logits_results, dim=-1)
-            print(self.logits_average.weight.data)
             logits = self.logits_average(logits_).squeeze(-1)
             # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
 
