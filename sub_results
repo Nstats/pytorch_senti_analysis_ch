@@ -89,5 +89,5 @@ to trainbest_model+GRU_highway          ba except eval  False       epoch3_bs128
 to trainbest_model+GRU_MLP_v2           ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
 ---------GRU_highway_v2---------
-
+to trainbest_model+GRU_highway_v2       ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
