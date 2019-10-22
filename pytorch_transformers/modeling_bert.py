@@ -969,23 +969,22 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.dropout)
         self.pooling = nn.Linear(config.hidden_size, config.hidden_size)
-        self.classifier_guoday = nn.Linear(config.lstm_hidden_size*2, self.config.num_labels)
+        self.classifier_guoday = nn.Linear(config.lstm_hidden_size * 2, self.config.num_labels)
         self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
         self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
         self.classifier_GRU_MLP_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
         self.classifier_GRU_MLP_v2_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size * 2).cuda()
         self.classifier_GRU_MLP_v2_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
         self.classifier_GRU_highway_1 = nn.Linear(
-            args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2,
-            args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2).cuda()
-        self.classifier_GRU_highway_2 = nn.Linear(args.lstm_hidden_size * 2+args.split_num * args.lstm_hidden_size * 2,
+            args.lstm_hidden_size * 2 + args.split_num * config.hidden_size,
+            args.lstm_hidden_size * 2 + args.split_num * config.hidden_size).cuda()
+        self.classifier_GRU_highway_2 = nn.Linear(args.lstm_hidden_size * 2 + args.split_num * config.hidden_size,
                                                   config.num_labels).cuda()
         self.classifier_GRU_highway_v2_1 = nn.Linear(
-            args.split_num * config.hidden_size + args.split_num * args.lstm_hidden_size * 2,
-            args.split_num * config.hidden_size + args.split_num * args.lstm_hidden_size * 2).cuda()
-        self.classifier_GRU_highway_v2_2 = nn.Linear(
-            args.split_num * config.hidden_size + args.split_num * args.lstm_hidden_size * 2 + args.split_num * config.hidden_size,
-            config.num_labels).cuda()
+            config.hidden_size + args.lstm_hidden_size * 2,
+            config.hidden_size + args.lstm_hidden_size * 2).cuda()
+        self.classifier_GRU_highway_v2_2 = nn.Linear(config.hidden_size + args.lstm_hidden_size * 2,
+                                                     config.num_labels).cuda()
         self.classifier_type = config.classifier
         
         self.W = []
@@ -1128,8 +1127,9 @@ class BertForSequenceClassification(BertPreTrainedModel):
             # print('sequence_output_size=', sequence_output.size())  # [batch_size*num_split, max_l, hidden_size]
             sequence_output_ = sequence_output.split(input_ids.size(0), dim=0)
             # a tuple: ([batch_size, max_l, hidden_size],...,[batch_size, max_l, hidden_size])
-            GRU_results = []
-            for tensor in sequence_output_:
+            pooled_output_ = pooled_output.split(input_ids.size(0), dim=0)
+            logits_results = []
+            for (tensor, pooled_out) in zip(sequence_output_, pooled_output_):
                 for gru in self.gru_MLP:
                     try:
                         gru.flatten_parameters()
@@ -1142,19 +1142,13 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 # print('hidden_0.size=', hidden_0.size())  # [1, batch_size, hidde_size]
                 final_hidden = torch.cat([hidden_0, hidden_1], dim=-1).squeeze(0)
                 # print('final_hidden.size=', final_hidden.size())  # [batch_size, 2*hidden_size]
-                GRU_results.append(final_hidden)
-            for i in range(self.args.split_num):
-                if i == 0:
-                    tensor_to_mlp = GRU_results[0]
-                else:
-                    tensor_to_mlp = torch.cat([tensor_to_mlp, GRU_results[i]], dim=1)
-            tensor_to_mlp_ = torch.cat(
-                [pooled_output.reshape(input_ids.size(0), -1), tensor_to_mlp], dim=-1).contiguous()
-            hidden_logits = self.classifier_GRU_highway_v2_1(tensor_to_mlp_)
-            hidden_logits = nn.functional.relu(hidden_logits)
-            hidden_logits_ = self.dropout(
-                torch.cat([hidden_logits, pooled_output.reshape(input_ids.size(0), -1)], dim=1))
-            logits = self.classifier_GRU_highway_v2_2(hidden_logits_)
+                final_hidden = torch.cat([final_hidden, pooled_out], dim=-1)
+                hidden_final = self.dropout(nn.functional.relu(self.classifier_GRU_highway_v2_1(final_hidden)))
+                final_logits = self.classifier_GRU_highway_v2_2(hidden_final)
+                logits_results.append(final_logits)
+            logits_ = torch.stack(logits_results, dim=-1)
+            print(self.logits_average.weight.data)
+            logits = self.logits_average(logits_).squeeze(-1)
             # print('GRU_MLP logits size=', logits.size())  # [batch_size, num_label]
 
         else:
