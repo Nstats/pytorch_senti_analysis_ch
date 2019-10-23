@@ -73,7 +73,9 @@ to test RoBERTa_large+GRU_MLP_256l      original        True		epoch8_bs128_lr5e-
 
 0.8106  RoBERTa_large_wwm+GRU_MLP       ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
-trainingMy_roberta_12000+GRU_MLP        ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+0.8082  My_roberta_12000_bri+GRU_MLP    ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+
+to trainMy_roberta_12000_hit+GRU_MLP    ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
 pay attention to: split_num_2   dout:0.0  epoch5 lr:1e-5 guoday's training speed
 
@@ -83,11 +85,16 @@ pay attention to: split_num_2   dout:0.0  epoch5 lr:1e-5 guoday's training speed
 
 0.8040  RoBERTa_large+GRU_highway       ba except eval  False   	epoch3_bs128_lr5e-5	    3           0.1
 
-to trainbest_model+GRU_highway          ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+trainingRoBERTa_large_wwm+GRU_highway   ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
 -----------GRU_MLP_v2-----------
 to trainbest_model+GRU_MLP_v2           ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
 ---------GRU_highway_v2---------
 to trainbest_model+GRU_highway_v2       ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+
+------------------------------------------------ensemble results--------------------------------------------
+
+0.8176  probs   [8106, 8112, 8114]
+        vote
 
