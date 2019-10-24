@@ -126,9 +126,15 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,split_num,
         ending_tokens=tokenizer.tokenize(example.text_b)
 
         skip_len=len(context_tokens)/split_num
+        step_len = (len(context_tokens)-max_seq_length)/(split_num-1)
         choices_features = []
         for i in range(split_num):
-            context_tokens_choice=context_tokens[int(i*skip_len):int((i+1)*skip_len)]   
+            if len(context_tokens) >= max_seq_length*split_num:
+                context_tokens_choice = context_tokens[int(i*skip_len):int((i+1)*skip_len)]
+            elif len(context_tokens) <= max_seq_length:
+                context_tokens_choice = context_tokens
+            else:
+                context_tokens_choice = context_tokens[int(i*step_len):int((i*step_len)+max_seq_length)]
             _truncate_seq_pair(context_tokens_choice, ending_tokens, max_seq_length - 3)
             tokens = ["[CLS]"]+ ending_tokens + ["[SEP]"] +context_tokens_choice  + ["[SEP]"]
             segment_ids = [0] * (len(ending_tokens) + 2) + [1] * (len(context_tokens_choice) + 1)
