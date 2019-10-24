@@ -95,6 +95,4 @@ to trainbest_model+GRU_highway_v2       ba except eval  False       epoch3_bs128
 
 ------------------------------------------------ensemble results--------------------------------------------
 
-0.8176  probs   [8106, 8112, 8114]
-        vote
-
+probs:0.8176    vote:0.8164     [8106, 8112, 8114]
