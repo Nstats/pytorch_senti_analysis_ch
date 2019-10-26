@@ -87,10 +87,13 @@ pay attention to: split_num_2   dout:0.0  epoch5 lr:2e-5 guoday's training speed
 
 0.8132  RoBERTa_large_hit+GRU_highway   ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
-        my_roberta_large_500_hit        ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+0.8052  my_roberta_large_500_tiny_hit   ba except eval  False       epoch3_bs128_lr5e-5     3           0.1     new data_loader
 
+trainingRoBERTa_large_hit+GRU_highway   ba except eval  False       epoch3_bs128_lr2e-5     3           0.1     new data_loader
+
+to trainRoberta_large_hit+guoday        ba except eval  False       epoch3_bs128_lr2e-5     3           0.1     new data_loader
 -----------GRU_MLP_v2-----------
-trainingRoberta_large_wwm+GRU_MLP_v2    ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
+to trainRoberta_large_wwm+GRU_MLP_v2    ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
 
 ---------GRU_highway_v2---------
 to trainbest_model+GRU_highway_v2       ba except eval  False       epoch3_bs128_lr5e-5     3           0.1
@@ -101,3 +104,5 @@ probs:0.8176    vote:0.8164     [8106, 8112, 8114]
 probs:0.8156    vote:           [8106, 8112, 8114, 8114]
 probs:0.8202    vote:0.8195     [8112, 8114, 8132]
 probs:0.8240    vote:0.8175     [8112, 8114, 8132, 8132]
+probs:0.8188    vote:           [8106, 8112, 8114, 8132]
+probs:0.8208    vote:           [8106, 8112, 8114, 8132, 8132]
