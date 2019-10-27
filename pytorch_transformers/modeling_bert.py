@@ -969,7 +969,8 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.dropout)
         self.pooling = nn.Linear(config.hidden_size, config.hidden_size)
-        self.classifier_guoday = nn.Linear(config.lstm_hidden_size * 2, self.config.num_labels)
+        self.classifier_guoday_1 = nn.Linear(config.lstm_hidden_size * 2, config.lstm_hidden_size * 2)
+        self.classifier_guoday_2 = nn.Linear(config.lstm_hidden_size * 2, self.config.num_labels)
         self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
         self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
         self.classifier_GRU_MLP_2 = nn.Linear(args.lstm_hidden_size * 2, config.num_labels).cuda()
@@ -1037,7 +1038,10 @@ class BertForSequenceClassification(BertPreTrainedModel):
             # hidden=output.mean(1)
             # hidden=nn.functional.tanh(self.pooling(hidden))
             # hidden=self.dropout(hidden)
-            logits = self.classifier_guoday(hidden)
+            hidden_logits = self.classifier_guoday_1(hidden)
+            hidden_logits = nn.functional.relu(hidden_logits)
+            hidden_logits = self.dropout(hidden_logits)
+            logits = self.classifier_guoday_2(hidden_logits)
             # print('guoday logits size=', logits.size())  # [3,3]
 
         elif self.classifier_type == 'MLP':
