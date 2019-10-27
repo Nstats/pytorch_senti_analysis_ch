@@ -969,7 +969,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.bert = BertModel(config)
         self.dropout = nn.Dropout(config.dropout)
         self.pooling = nn.Linear(config.hidden_size, config.hidden_size)
-        self.classifier_guoday_1 = nn.Linear(config.lstm_hidden_size * 2, cofig.lstm_hidden_size * 2)
+        self.classifier_guoday_1 = nn.Linear(config.lstm_hidden_size * 2, config.lstm_hidden_size * 2)
         self.classifier_guoday_2 = nn.Linear(config.lstm_hidden_size * 2, self.config.num_labels)
         self.classifier_MLP = nn.Linear(args.split_num*config.hidden_size, 3).cuda()
         self.classifier_GRU_MLP_1 = nn.Linear(args.lstm_hidden_size * 2, args.lstm_hidden_size*2).cuda()
