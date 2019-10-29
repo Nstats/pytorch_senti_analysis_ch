@@ -10,13 +10,13 @@ python run_bert.py \
 --data_dir ./data/data_0 \
 --output_dir ./output_test/fold_0 \
 --classifier 'GRU_MLP' \
---max_seq_length 10 \
---split_num 4 \
+--max_seq_length 512 \
+--split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
---lstm_dropout 0.1 \
+--dropout 0.1 \
 --per_gpu_train_batch_size 6 \
---gradient_accumulation_steps 2 \
+--gradient_accumulation_steps 6 \
 --warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 5e-5 \

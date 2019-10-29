@@ -1,12 +1,8 @@
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
-import time
+from run_bert import convert_examples_to_features, read_examples
+from pytorch_transformers.tokenization_bert import BertTokenizer
 
-start_time = time.time()
-x = np.arange(10000)
-y = np.random.standard_normal(10000)
-plt.plot(x, y, label='loss_evar', linewidth=1, color='b', marker='o', markerfacecolor='green', markersize=2)
-plt.savefig('./test.jpg')
-print('time_used=', time.time()-start_time)
+train_examples = read_examples('./data/train.csv', is_training=True)
+train_examples = train_examples[:10]
+tokenizer = BertTokenizer.from_pretrained('chinese_RoBERTa_zh_Large_pytorch', do_lower_case=True)
+train_features = convert_examples_to_features(train_examples, tokenizer, 512, 3, True)
+print(train_examples[0])

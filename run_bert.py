@@ -126,12 +126,12 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,split_num,
         ending_tokens=tokenizer.tokenize(example.text_b)
 
         skip_len=len(context_tokens)/split_num
-        step_len = (len(context_tokens)-max_seq_length)/(split_num-1)
+        step_len = (len(context_tokens)+len(ending_tokens)-max_seq_length+3)/(split_num-1)
         choices_features = []
         for i in range(split_num):
-            if len(context_tokens) >= max_seq_length*split_num:
+            if len(context_tokens) > (max_seq_length-3-len(ending_tokens))*split_num:
                 context_tokens_choice = context_tokens[int(i*skip_len):int((i+1)*skip_len)]
-            elif len(context_tokens) <= max_seq_length:
+            elif len(context_tokens)+len(ending_tokens) <= max_seq_length-3:
                 context_tokens_choice = context_tokens
             else:
                 context_tokens_choice = context_tokens[int(i*step_len):int((i*step_len)+max_seq_length)]
@@ -150,7 +150,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,split_num,
 
 
             label = example.label
-            if example_index < 1 and is_training:
+            if example_index < 3 and is_training:
                 logger.info("*** Example ***")
                 logger.info("idx: {}".format(example_index))
                 logger.info("guid: {}".format(example.guid))
