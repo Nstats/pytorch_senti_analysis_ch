@@ -91,7 +91,9 @@ pay attention to: split_num_2   dout:0.0  epoch5 lr:2e-5 guoday's training speed
 
 0.8146  RoBERTa_large_hit+GRU_highway   ba except eval  False       epoch3_bs128_lr2e-5     3           0.1     new data_loader
 
-trainingRoberta_large_hit+guo_MLP       ba except eval  False       epoch4_bs128_lr2e-5     3           0.1     new data_loader
+0.8161  Roberta_large_hit+guo_MLP       ba except eval  False       epoch4_bs128_lr2e-5     3           0.1     new data_loader
+
+to trainroberta_large_hit+guo_MLP       ba except eval  False       epoch4_bs128_lr2e-5     5           0.1     new data_loader wrong data deleted
 
 ------------------------------------------------ensemble results--------------------------------------------
 
