@@ -42,6 +42,7 @@ from pytorch_transformers.modeling_bert import BertForSequenceClassification, Be
 from pytorch_transformers import AdamW, WarmupLinearSchedule
 from pytorch_transformers.tokenization_bert import BertTokenizer
 from itertools import cycle
+from radam import radam
 logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt = '%m/%d/%Y %H:%M:%S',
                     level = logging.INFO)
@@ -406,7 +407,10 @@ def main():
             {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
             ]
 
-        optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
+        if args.optimizer == radam:
+            optimizer = radam(optimizer_grouped_parameters, lr=args.learning_rate)
+        else:
+            optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
         scheduler = WarmupLinearSchedule(optimizer, warmup_steps=args.warmup_steps, t_total=args.train_steps)
         
         global_step = 0
