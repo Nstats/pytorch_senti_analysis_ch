@@ -57,7 +57,7 @@ if __name__ == '__main__':
     train_df_v2['title'] = train_df_v2['title'].fillna('.')
 
     train_df = pd.concat([train_df_v1, train_df_v2])
-    test_df = pd.concat([test_df_v1, test_df_v2])
+    test_df = test_df_v2
 
     index = set(range(train_df.shape[0]))
     K_fold = []
@@ -81,8 +81,6 @@ if __name__ == '__main__':
             if j != i:
                 train_index += K_fold[j]
         train_df_balanced = balance_data(train_df.iloc[train_index])
-        if not os.path.exists("./data/data_{}".format(i)):
-            os.mkdir("./data/data_{}".format(i))
         train_df_balanced.to_csv("./data/data_{}/train.csv".format(i))
         train_df.iloc[dev_index].to_csv("./data/data_{}/dev.csv".format(i))
         test_df.to_csv("./data/data_{}/test.csv".format(i))
