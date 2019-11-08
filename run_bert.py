@@ -375,8 +375,8 @@ def main():
         elif args.n_gpu > 1:
             model = torch.nn.DataParallel(model)
 
-        args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
-        args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
+    args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
+    args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
 
     if args.do_train == 'yes':
         print('________________________now training______________________________')

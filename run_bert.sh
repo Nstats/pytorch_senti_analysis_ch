@@ -7,12 +7,12 @@ do
 python run_bert.py \
 --model_type bert \
 --model_name_or_path chinese_roberta_wwm_large_pytorch_hit \
---optimizer 'Adam' \
---do_train 'no' \
---do_eval 'no' \
+--optimizer 'RAdam' \
+--do_train 'yes' \
+--do_eval 'yes' \
 --do_test 'yes' \
 --data_dir ./data/data_$i \
---output_dir ./out_roberta_large_hit_new_dataloader_3epo_3split_128bs_lr2e-5_GRU_highway_balanced_except_eval/fold_$i \
+--output_dir ./v1v2_out_roberta_large_hit_new_dataloaderv2_del_w_data_3epo_3split_128bs_RAdam_lr5e-5_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
 --split_num 3 \
@@ -24,15 +24,15 @@ python run_bert.py \
 --gradient_accumulation_steps 128 \
 --warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
---learning_rate 2e-5 \
+--learning_rate 5e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 36000
+--train_steps 52000
 
 done
 
 :<<annotation
---optimizer 'RAdam' or 'Adam' or ...
+--optimizer 'RAdam' or 'Adam'
 --classifier:'guoday' or 'MLP' or 'GRU_MLP' or 'GRU_highway'
 training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_accumulation_steps)
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
