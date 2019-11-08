@@ -243,12 +243,12 @@ def main():
     parser.add_argument("--max_seq_length", default=128, type=int,
                         help="The maximum total input sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
-    parser.add_argument("--do_train", action='store_true',
-                        help="Whether to run training.")
-    parser.add_argument("--do_test", action='store_true',
-                        help="Whether to run training.")
-    parser.add_argument("--do_eval", action='store_true',
-                        help="Whether to run eval on the dev set.")
+    parser.add_argument("--do_train", default='yes', type=str, required=True,
+                        help="Whether to run training. yes or no.")
+    parser.add_argument("--do_test", default='yes', type=str, required=True,
+                        help="Whether to run training. yes or no.")
+    parser.add_argument("--do_eval", default='yes', type=str, required=True,
+                        help="Whether to run eval on the dev set. yes or no.")
     parser.add_argument("--evaluate_during_training", action='store_true',
                         help="Rul evaluation during training at each logging step.")
     parser.add_argument("--do_lower_case", action='store_true',
