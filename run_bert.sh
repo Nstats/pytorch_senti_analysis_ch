@@ -12,10 +12,10 @@ python run_bert.py \
 --do_eval 'no' \
 --do_test 'yes' \
 --data_dir ./data/data_$i \
---output_dir ./out_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr2e-5_guoday_balanced_except_eval/fold_$i \
+--output_dir ./out_roberta_large_hit_new_dataloader_3epo_3split_128bs_lr2e-5_GRU_highway_balanced_except_eval/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
---split_num 5 \
+--split_num 3 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --dropout 0.1 \
