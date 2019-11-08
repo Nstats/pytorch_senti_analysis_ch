@@ -375,7 +375,7 @@ def main():
         model = torch.nn.DataParallel(model)
     args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
     args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
-    if args.do_train:
+    if args.do_train == 'yes':
         print('________________________now training______________________________')
         # Prepare data loader
 
@@ -498,7 +498,7 @@ def main():
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
             # do evaluation totally 10 times during training stage.
-            if args.do_eval and (step+1) % int(num_train_optimization_steps/10) == 0 and step > 0:
+            if args.do_eval == 'yes' and (step+1) % int(num_train_optimization_steps/10) == 0 and step > 0:
                 for file in ['dev.csv']:
                     inference_labels = []
                     gold_labels = []
@@ -633,11 +633,11 @@ def main():
                         print("=" * 80)
                     '''
 
-    if args.do_test:
+    if args.do_test == 'yes':
         print('___________________now testing for best eval f1 model_________________________')
         del model
         gc.collect()
-        args.do_train = False
+        args.do_train = 'no'
         model = BertForSequenceClassification.from_pretrained(os.path.join(args.output_dir, "pytorch_model.bin"),
                                                               args, config=config)
         if args.fp16:
