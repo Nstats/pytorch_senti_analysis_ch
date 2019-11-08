@@ -359,22 +359,25 @@ def main():
     config.hidden_dropout_prob = args.dropout
 
     # Prepare model
-    model = BertForSequenceClassification.from_pretrained(args.model_name_or_path, args, config=config)
+    if args.do_train == 'yes':
+        model = BertForSequenceClassification.from_pretrained(args.model_name_or_path, args, config=config)
 
-    if args.fp16:
-        model.half()
-    model.to(device)
-    if args.local_rank != -1:
-        try:
-            from apex.parallel import DistributedDataParallel as DDP
-        except ImportError:
-            raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use distributed and fp16 training.")
+        if args.fp16:
+            model.half()
+        model.to(device)
+        if args.local_rank != -1:
+            try:
+                from apex.parallel import DistributedDataParallel as DDP
+            except ImportError:
+                raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use distributed and fp16 training.")
 
-        model = DDP(model)
-    elif args.n_gpu > 1:
-        model = torch.nn.DataParallel(model)
-    args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
-    args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
+            model = DDP(model)
+        elif args.n_gpu > 1:
+            model = torch.nn.DataParallel(model)
+
+        args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
+        args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
+
     if args.do_train == 'yes':
         print('________________________now training______________________________')
         # Prepare data loader
@@ -635,7 +638,10 @@ def main():
 
     if args.do_test == 'yes':
         print('___________________now testing for best eval f1 model_________________________')
-        del model
+        try:
+            del model
+        except:
+            pass
         gc.collect()
         args.do_train = 'no'
         model = BertForSequenceClassification.from_pretrained(os.path.join(args.output_dir, "pytorch_model.bin"),
