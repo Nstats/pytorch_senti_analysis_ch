@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# python ./data/preprocess_original_balanced_except_eval.py;
+python ./data/preprocess_original_balanced_except_eval.py;
 export CUDA_VISIBLE_DEVICES=0
-for((i=0;i<2;i++));
+for((i=0;i<5;i++));
 
 do
 python run_bert.py \
@@ -32,6 +32,7 @@ python run_bert.py \
 done
 
 :<<annotation
+--optimizer 'RAdam' or 'Adam' or ...
 --classifier:'guoday' or 'MLP' or 'GRU_MLP' or 'GRU_highway'
 training_steps = epoch*num_training_examples/(per_gpu_train_batch_size/gradient_accumulation_steps)
 epoch = training_steps*(per_gpu_train_batch_size/gradient_accumulation_steps)/num_training_examples
