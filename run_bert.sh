@@ -8,8 +8,8 @@ python run_bert.py \
 --model_type bert \
 --model_name_or_path chinese_roberta_wwm_large_pytorch_hit \
 --optimizer 'Adam' \
---do_train 'yes' \
---do_eval 'yes' \
+--do_train 'no' \
+--do_eval 'no' \
 --do_test 'yes' \
 --data_dir ./data/data_$i \
 --output_dir ./out_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr2e-5_guoday_balanced_except_eval/fold_$i \
