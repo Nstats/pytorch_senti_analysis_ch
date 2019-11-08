@@ -13,7 +13,7 @@ def balance_data(df):
     df_0 = df[df['label'] == 0]
     df_1 = df[df['label'] == 1]
     df_2 = df[df['label'] == 2]
-    print(len(df_0), len(df_1), len(df_2))
+    print('len(df_0)=', len(df_0), 'len(df_1)=', len(df_1), 'len(df_2)=', len(df_2))
     maxNum = max(len(df_0), len(df_1), len(df_2))
 
     if len(df_0) < maxNum:
@@ -28,19 +28,36 @@ def balance_data(df):
 
 
 if __name__ == '__main__':
-    train_df = pd.read_csv("./data/Second_DataSet.csv")
-    train_label_df = pd.read_csv("./data/Second_DataSet_Label.csv")
-    test_df = pd.read_csv("./data/Second_TestDataSet.csv")
-    train_df = train_df.merge(train_label_df, on='id', how='left')
-    train_df['label'] = train_df['label'].fillna(-1)
-    train_df = train_df[train_df['label'] != -1]
-    train_df['label'] = train_df['label'].astype(int)
-    test_df['label'] = 0
+    train_df_v1 = pd.read_csv("./data/Train_DataSet.csv")
+    train_label_df_v1 = pd.read_csv("./data/Train_DataSet_Label.csv")
+    test_df_v1 = pd.read_csv("./data/Test_DataSet.csv")
+    train_df_v1 = train_df_v1.merge(train_label_df_v1, on='id', how='left')
+    train_df_v1['label'] = train_df_v1['label'].fillna(-1)
+    train_df_v1 = train_df_v1[train_df_v1['label'] != -1]
+    train_df_v1['label'] = train_df_v1['label'].astype(int)
+    test_df_v1['label'] = 0
 
-    test_df['content'] = test_df['content'].fillna('.')
-    train_df['content'] = train_df['content'].fillna('.')
-    test_df['title'] = test_df['title'].fillna('.')
-    train_df['title'] = train_df['title'].fillna('.')
+    test_df_v1['content'] = test_df_v1['content'].fillna('.')
+    train_df_v1['content'] = train_df_v1['content'].fillna('.')
+    test_df_v1['title'] = test_df_v1['title'].fillna('.')
+    train_df_v1['title'] = train_df_v1['title'].fillna('.')
+
+    train_df_v2 = pd.read_csv("./data/Second_DataSet.csv")
+    train_label_df_v2 = pd.read_csv("./data/Second_DataSet_Label.csv")
+    test_df_v2 = pd.read_csv("./data/Second_TestDataSet.csv")
+    train_df_v2 = train_df_v2.merge(train_label_df_v2, on='id', how='left')
+    train_df_v2['label'] = train_df_v2['label'].fillna(-1)
+    train_df_v2 = train_df_v2[train_df_v2['label'] != -1]
+    train_df_v2['label'] = train_df_v2['label'].astype(int)
+    test_df_v2['label'] = 0
+
+    test_df_v2['content'] = test_df_v2['content'].fillna('.')
+    train_df_v2['content'] = train_df_v2['content'].fillna('.')
+    test_df_v2['title'] = test_df_v2['title'].fillna('.')
+    train_df_v2['title'] = train_df_v2['title'].fillna('.')
+
+    train_df = pd.concat([train_df_v1, train_df_v2])
+    test_df = pd.concat([test_df_v1, test_df_v2])
 
     index = set(range(train_df.shape[0]))
     K_fold = []
@@ -64,6 +81,8 @@ if __name__ == '__main__':
             if j != i:
                 train_index += K_fold[j]
         train_df_balanced = balance_data(train_df.iloc[train_index])
+        if not os.path.exists("./data/data_{}".format(i)):
+            os.mkdir("./data/data_{}".format(i))
         train_df_balanced.to_csv("./data/data_{}/train.csv".format(i))
         train_df.iloc[dev_index].to_csv("./data/data_{}/dev.csv".format(i))
         test_df.to_csv("./data/data_{}/test.csv".format(i))

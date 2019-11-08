@@ -1,8 +1,11 @@
-from run_bert import convert_examples_to_features, read_examples
-from pytorch_transformers.tokenization_bert import BertTokenizer
+import pandas as pd
 
-train_examples = read_examples('./data/train.csv', is_training=True)
-train_examples = train_examples[:10]
-tokenizer = BertTokenizer.from_pretrained('chinese_RoBERTa_zh_Large_pytorch', do_lower_case=True)
-train_features = convert_examples_to_features(train_examples, tokenizer, 512, 3, True)
-print(train_examples[0])
+data_dir = './data/Second_TestDataSet.csv'
+
+df = pd.DataFrame(pd.read_csv(data_dir))
+df_id = df['id']
+df_content = df['content']
+size = df.shape[0]
+for i in range(size):
+    if not len(df_id[i]) == 32:
+        print(i, df_id[i])

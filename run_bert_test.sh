@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# python ./data/preprocess.py;
+# python ./data/preprocess_original_balanced_except_eval.py;
 export CUDA_VISIBLE_DEVICES=0
 python run_bert.py \
 --model_type bert \
@@ -10,8 +10,8 @@ python run_bert.py \
 --data_dir ./data/data_0 \
 --output_dir ./output_test/fold_0 \
 --classifier 'GRU_MLP' \
---max_seq_length 512 \
---split_num 3 \
+--max_seq_length 50 \
+--split_num 1 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --dropout 0.1 \
