@@ -61,23 +61,23 @@ if __name__ == '__main__':
 
     index = set(range(train_df.shape[0]))
     K_fold = []
-    for i in range(5):
-        if i == 4:
+    for i in range(3):
+        if i == 2:
             tmp = index
         else:
-            tmp = random.sample(index, int(1.0 / 5 * train_df.shape[0]))
+            tmp = random.sample(index, int(1.0 / 3 * train_df.shape[0]))
         index = index - set(tmp)
         print("Number:", len(tmp))
         K_fold.append(tmp)
 
-    for i in range(5):
+    for i in range(3):
         print("Fold", i)
         if os.path.exists('./data/data_{}'.format(i)):
             os.system("rm -rf ./data/data_{}".format(i))
         os.system("mkdir ./data/data_{}".format(i))
         dev_index = list(K_fold[i])
         train_index = []
-        for j in range(5):
+        for j in range(3):
             if j != i:
                 train_index += K_fold[j]
         train_df_balanced = balance_data(train_df.iloc[train_index])

@@ -5,7 +5,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--model_prefix", default='./output_RoBERTa_large_10epo_3split/fold_', type=str, required=True)
 args = parser.parse_args()
 
-k=5
+k=3
 # for best eval f1 model
 df=pd.read_csv('data/submit_example.csv')
 df['0']=0

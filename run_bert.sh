@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 python ./data/preprocess_original_balanced_except_eval.py;
 export CUDA_VISIBLE_DEVICES=0
-for((i=0;i<5;i++));
+for((i=0;i<3;i++));
 
 do
 python run_bert.py \
 --model_type bert \
 --model_name_or_path chinese_roberta_wwm_large_pytorch_hit \
---optimizer 'RAdam' \
+--optimizer 'Adam' \
 --do_train 'yes' \
 --do_eval 'yes' \
 --do_test 'yes' \
 --data_dir ./data/data_$i \
---output_dir ./v1v2_out_roberta_large_hit_new_dataloaderv2_del_w_data_3epo_3split_128bs_RAdam_lr5e-5_guoday_balanced_except_eval/fold_$i \
+--output_dir ./v1v2_out_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr2e-5_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
---split_num 3 \
+--split_num 5 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --dropout 0.1 \
@@ -24,10 +24,10 @@ python run_bert.py \
 --gradient_accumulation_steps 128 \
 --warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
---learning_rate 5e-5 \
+--learning_rate 2e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 52000
+--train_steps 60000
 
 done
 
