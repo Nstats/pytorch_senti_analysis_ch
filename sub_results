@@ -108,10 +108,9 @@ to test roberta_large_hit+GRU_highway   train_v1    ba except eval  epoch3_bs128
 to test roberta_large_hit+guo_MLP       train_v1    ba except eval  epoch4_bs128_lr2e-5     3   0.1 new data_loader
 to test roberta_large_hit+guo_MLP       train_v1    ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
 
-to trainroberta_large_hit+GRU_highway   train_v1v2  ba except eval  epoch3_bs128_lr5e-5     3   0.1
-to trainroberta_large_hit+GRU_highway   train_v1v2  ba except eval  epoch3_bs128_lr2e-5     3   0.1 new data_loader
-to trainroberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr2e-5     3   0.1 new data_loader
-to trainroberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
+to trainroberta_large_hit+GRU_highway   train_v1v2  ba except eval  epoch4_bs128_lr3e-5     3   0.1 new data_loaderv2+wrong data del
+to trainroberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr3e-5     3   0.1 new data_loaderv2+wrong data del
+0.8073  roberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
 
 to train    RAdam
 to train    GRU LSTM...roberta_large_hit roberta_large_brightmart
