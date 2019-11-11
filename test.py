@@ -1,11 +1,12 @@
 import pandas as pd
+import numpy as np
 
-data_dir = './data/Second_TestDataSet.csv'
-
-df = pd.DataFrame(pd.read_csv(data_dir))
-df_id = df['id']
-df_content = df['content']
-size = df.shape[0]
-for i in range(size):
-    if not len(df_id[i]) == 32:
-        print(i, df_id[i])
+df = pd.DataFrame(np.arange(12).reshape(3, 4), index=['a', 'b', 'c'])
+l = ['c', 'b', 'a']
+df['st'] = df.index
+print(df, '\n')
+df['st'] = df['st'].astype('category')
+df['st'].cat.reorder_categories(l, inplace=True)
+print(df, '\n')
+df.sort_values('st', inplace=True)
+print(df)
