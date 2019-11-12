@@ -3,6 +3,7 @@ import os
 import re
 import random
 
+k = 3
 def balance_data(df):
     '''
     :param
@@ -61,23 +62,23 @@ if __name__ == '__main__':
 
     index = set(range(train_df.shape[0]))
     K_fold = []
-    for i in range(3):
-        if i == 2:
+    for i in range(k):
+        if i == k-1:
             tmp = index
         else:
-            tmp = random.sample(index, int(1.0 / 3 * train_df.shape[0]))
+            tmp = random.sample(index, int(1.0 / k * train_df.shape[0]))
         index = index - set(tmp)
         print("Number:", len(tmp))
         K_fold.append(tmp)
 
-    for i in range(3):
+    for i in range(k):
         print("Fold", i)
         if os.path.exists('./data/data_{}'.format(i)):
             os.system("rm -rf ./data/data_{}".format(i))
         os.system("mkdir ./data/data_{}".format(i))
         dev_index = list(K_fold[i])
         train_index = []
-        for j in range(3):
+        for j in range(k):
             if j != i:
                 train_index += K_fold[j]
         train_df_balanced = balance_data(train_df.iloc[train_index])
