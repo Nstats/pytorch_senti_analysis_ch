@@ -494,7 +494,7 @@ class PreTrainedModel(nn.Module):
             return cls.load_tf_weights(model, config, resolved_archive_file[:-6])  # Remove the '.index'
 
         # Convert old format to new format if needed from a PyTorch state_dict
-        if args.do_train:
+        if args.do_train == 'yes':
             old_keys = []
             new_keys = []
             for key in state_dict.keys():
