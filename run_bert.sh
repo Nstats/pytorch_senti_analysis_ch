@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-python ./data/preprocess_original_balanced_except_eval.py;
-# python ./data/make_train_as_test.py;
+# python ./data/preprocess_original_balanced_except_eval.py;
+python ./data/preprocess_original_balanced_except_eval_random_drop.py;
 export CUDA_VISIBLE_DEVICES=0
 for((i=0;i<3;i++));
 
@@ -11,24 +11,24 @@ python run_bert.py \
 --optimizer 'Adam' \
 --do_train 'yes' \
 --do_eval 'yes' \
---do_test 'yes' \
+--do_test 'no' \
 --data_dir ./data/data_$i \
---output_dir ./v1v2_out_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_3split_128bs_lr3e-5_GRU_highway_balanced_except_eval/fold_$i \
---classifier 'GRU_highway' \
+--output_dir ./v1v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr3e-5_guoday_balanced_except_eval/fold_$i \
+--classifier 'guoday' \
 --max_seq_length 512 \
---split_num 3 \
+--split_num 5 \
 --lstm_hidden_size 512 \
 --lstm_layers 1 \
 --dropout 0.1 \
 --eval_steps 200 \
 --per_gpu_train_batch_size 128 \
---gradient_accumulation_steps 64 \
---warmup_steps 400 \
+--gradient_accumulation_steps 128 \
+--warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
 --learning_rate 3e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 30000
+--train_steps 60000
 
 done
 
