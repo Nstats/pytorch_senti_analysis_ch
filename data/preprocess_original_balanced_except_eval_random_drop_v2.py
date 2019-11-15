@@ -18,29 +18,11 @@ def balance_data(df):
     maxNum = max(len(df_0), len(df_1), len(df_2))
 
     if len(df_0) < maxNum:
-        tmp = df_0.sample(n=maxNum - len(df_0), replace=True).values
+        tmp = df_0.sample(n=len(df_0), replace=True).values
         for i in range(len(tmp)):
             context_len = len(tmp[i][2])
             random_num = min(int(0.3*context_len), 5)
             random_index = np.random.randint(0, context_len-random_num-1, random_num)
-            for j in random_index:
-                tmp[i][2] = tmp[i][2].replace(tmp[i][2][j], '', 1)
-        df = df.append(pd.DataFrame(tmp, columns=['id', 'title', 'content', 'label']))
-    if len(df_1) < maxNum:
-        tmp = df_1.sample(n=maxNum - len(df_1), replace=True).values
-        for i in range(len(tmp)):
-            context_len = len(tmp[i][2])
-            random_num = min(int(0.3 * context_len), 5)
-            random_index = np.random.randint(0, context_len-random_num - 1, random_num)
-            for j in random_index:
-                tmp[i][2] = tmp[i][2].replace(tmp[i][2][j], '', 1)
-        df = df.append(pd.DataFrame(tmp, columns=['id', 'title', 'content', 'label']))
-    if len(df_2) < maxNum:
-        tmp = df_2.sample(n=maxNum - len(df_2), replace=True).values
-        for i in range(len(tmp)):
-            context_len = len(tmp[i][2])
-            random_num = min(int(0.3 * context_len), 5)
-            random_index = np.random.randint(0, context_len-random_num - 1, random_num)
             for j in random_index:
                 tmp[i][2] = tmp[i][2].replace(tmp[i][2][j], '', 1)
         df = df.append(pd.DataFrame(tmp, columns=['id', 'title', 'content', 'label']))
