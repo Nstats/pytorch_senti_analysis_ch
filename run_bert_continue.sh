@@ -23,14 +23,14 @@ python run_bert_continue.py \
 --lstm_layers 1 \
 --dropout 0.1 \
 --eval_steps 200 \
---per_gpu_train_batch_size 64 \
---gradient_accumulation_steps 32 \
+--per_gpu_train_batch_size 128 \
+--gradient_accumulation_steps 64 \
 --warmup_steps 500 \
 --per_gpu_eval_batch_size 32 \
---learning_rate 5e-6 \
+--learning_rate 1e-6 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 5500
+--train_steps 8000
 
 done
 
