@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # python ./data/preprocess_original_balanced_except_eval.py;
-python ./data/preprocess_original_balanced_except_eval_random_drop.py;
+# python ./data/preprocess_original_balanced_except_eval_random_drop.py;
 python ./data/preprocess_original_balanced_except_eval_random_drop_v2.py;
 export CUDA_VISIBLE_DEVICES=0
 for((i=0;i<3;i++));
 
 do
-python run_bert.py \
+python run_bert_continue.py \
 --model_type bert \
 --model_name_or_path ./v1v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr3e-5_guoday_balanced_except_eval/fold_$i \
 --optimizer 'Adam' \
 --do_train 'yes' \
 --do_eval 'yes' \
---do_test 'no' \
+--do_test 'yes' \
 --data_dir ./data/data_$i \
---output_dir ./continue_on_v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr3e-5_guoday_balanced_except_eval/fold_$i \
+--output_dir ./continue_on_v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_2epo_5split_128bs_lr5e-6_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
 --split_num 5 \
@@ -29,7 +29,7 @@ python run_bert.py \
 --learning_rate 5e-6 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 60000
+--train_steps 15000
 
 done
 

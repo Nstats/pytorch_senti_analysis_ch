@@ -111,7 +111,7 @@ to test roberta_large_hit+guo_MLP       train_v1    ba except eval  epoch4_bs128
 0.7707  roberta_large_hit+GRU_highway   train_v1v2  ba except eval  epoch4_bs128_lr3e-5     3   0.1 new data_loaderv2+wrong data del
 to trainroberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr3e-5     3   0.1 new data_loaderv2+wrong data del
 0.8073  roberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
-to trainroberta_large_hit_guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr3e-5     5   0.1 new data_loaderv2+wrong data del+random drop
+0.8068  roberta_large_hit_guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr3e-5     5   0.1 new data_loaderv2+wrong data del+random drop
 to train    my_roberta
 
 to train    RAdam   not good
