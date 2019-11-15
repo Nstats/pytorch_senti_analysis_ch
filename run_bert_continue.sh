@@ -29,7 +29,7 @@ python run_bert_continue.py \
 --learning_rate 1e-6 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 5500
+--train_steps 8000
 
 done
 
