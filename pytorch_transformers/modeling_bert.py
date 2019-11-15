@@ -1166,6 +1166,10 @@ class BertForSequenceClassification(BertPreTrainedModel):
                 loss = loss_fct(logits.view(-1), labels.view(-1))
             else:
                 loss_fct = CrossEntropyLoss()
+                if self.args.do_label_smoothing == 'yes':
+                    for line in logits:
+                        for i in range(len(line)):
+                            line[i] = line[i]+0.2 if line[i] < 0.8 else 1.0
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             outputs = loss
         else:

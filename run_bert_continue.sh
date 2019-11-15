@@ -13,6 +13,7 @@ python run_bert_continue.py \
 --do_train 'yes' \
 --do_eval 'yes' \
 --do_test 'yes' \
+--do_label_smoothing 'no' \
 --data_dir ./data/data_$i \
 --output_dir ./continue_on_v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_2epo_3split_64bs_lr5e-6_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \

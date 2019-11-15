@@ -12,6 +12,7 @@ python run_bert.py \
 --do_train 'no' \
 --do_eval 'no' \
 --do_test 'yes' \
+--do_label_smoothing 'no' \
 --data_dir ./data/data_$i \
 --output_dir ./v1v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr3e-5_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \

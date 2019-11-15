@@ -232,6 +232,8 @@ def main():
                         help='classifier type, guoday or MLP or GRU_MLP or ...')
     parser.add_argument('--optimizer', default='RAdam', type=str, required=True,
                         help='optimizer we use, RAdam or ...')
+    parser.add_argument("--do_label_smoothing", default='yes', type=str, required=True,
+                        help="Whether to do label smoothing. yes or no.")
 
     ## Other parameters
     parser.add_argument("--config_name", default="", type=str,
