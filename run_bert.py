@@ -93,10 +93,10 @@ class InputFeatures(object):
         ]
         self.label = label
         
-def read_examples(input_file, is_training):
+def read_examples(input_file, is_training, label_name='label'):
     df=pd.read_csv(input_file)
     examples=[]
-    for val in df[['id','content','title','label']].values:
+    for val in df[['id','content','title', label_name]].values:
         examples.append(InputExample(guid=val[0],text_a=val[1],text_b=val[2],label=val[3]))
     return examples
 
@@ -193,9 +193,9 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
         else:
             tokens_b.pop()
 
-def accuracy(out, labels):
+def accuracy(out, labels, target_label=[0,1,2]):
     outputs = np.argmax(out, axis=1)
-    return f1_score(labels,outputs,labels=[0,1,2],average='macro')
+    return f1_score(labels,outputs,labels=target_label,average='macro')
 
 def select_field(features, field):
     return [
@@ -236,6 +236,10 @@ def main():
                         help="Whether to do label smoothing. yes or no.")
     parser.add_argument('--draw_loss_steps', default=1, type=int, required=True,
                         help='training steps to draw loss')
+    parser.add_argument('--label_name', default='label', type=str, required=True,
+                        help='label name in original train set index')
+    parser.add_argument('--target_label', default=[0,1,2], type=list, required=True,
+                        help='target_label=args.target_label')
 
     ## Other parameters
     parser.add_argument("--config_name", default="", type=str,
@@ -386,7 +390,7 @@ def main():
         print('________________________now training______________________________')
         # Prepare data loader
 
-        train_examples = read_examples(os.path.join(args.data_dir, 'train.csv'), is_training=True)
+        train_examples = read_examples(os.path.join(args.data_dir, 'train.csv'), is_training=True, label_name=args.label_name)
         train_features = convert_examples_to_features(
             train_examples, tokenizer, args.max_seq_length, args.split_num, True)
         # print('train_feature_size=', train_features.__sizeof__())
@@ -510,7 +514,7 @@ def main():
                     inference_labels = []
                     gold_labels = []
                     inference_logits = []
-                    eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = True)
+                    eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = True, label_name=args.label_name)
                     eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,args.split_num,False)
                     all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
                     all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
@@ -597,7 +601,7 @@ def main():
                         f.write('f1:'+str(f10) + ' ' + str(f11) + ' ' + str(f12) + '\n' + '\n')
 
                     eval_loss = eval_loss / nb_eval_steps
-                    eval_accuracy = accuracy(inference_logits, gold_labels)
+                    eval_accuracy = accuracy(inference_logits, gold_labels,target_label=args.target_label)
                     # draw loss.
                     eval_F1.append(round(eval_accuracy, 4))
                     ax.append(step)
@@ -667,7 +671,7 @@ def main():
         for file, flag in [('test.csv', 'test')]:
             inference_labels = []
             gold_labels = []
-            eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = False)
+            eval_examples = read_examples(os.path.join(args.data_dir, file), is_training = False, label_name=args.label_name)
             eval_features = convert_examples_to_features(eval_examples, tokenizer, args.max_seq_length,args.split_num,False)
             all_input_ids = torch.tensor(select_field(eval_features, 'input_ids'), dtype=torch.long)
             all_input_mask = torch.tensor(select_field(eval_features, 'input_mask'), dtype=torch.long)
@@ -697,7 +701,7 @@ def main():
             gold_labels = np.concatenate(gold_labels, 0)
             logits = np.concatenate(inference_labels, 0)
             if flag == 'dev':
-                print(flag, accuracy(logits, gold_labels))
+                print(flag, accuracy(logits, gold_labels,target_label=args.target_label))
             elif flag == 'test':
                 df = pd.read_csv(os.path.join(args.data_dir, file))
                 df['label_0'] = logits[:, 0]
