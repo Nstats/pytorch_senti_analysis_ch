@@ -234,6 +234,8 @@ def main():
                         help='optimizer we use, RAdam or ...')
     parser.add_argument("--do_label_smoothing", default='yes', type=str, required=True,
                         help="Whether to do label smoothing. yes or no.")
+    parser.add_argument('--draw_loss_steps', default=1, type=int, required=True,
+                        help='training steps to draw loss')
 
     ## Other parameters
     parser.add_argument("--config_name", default="", type=str,
@@ -472,9 +474,9 @@ def main():
             else:
                 loss.backward()
 
-            # draw loss every 500 docs
-            if (step+1) % int(500/(args.train_batch_size/args.gradient_accumulation_steps)) == 0:
-                list_loss_mean.append(round(loss_batch/8.0, 4))
+            # draw loss every n docs
+            if (step+1) % int(args.draw_loss_steps/(args.train_batch_size/args.gradient_accumulation_steps)) == 0:
+                list_loss_mean.append(round(loss_batch, 4))
                 bx.append(step+1)
                 plt.plot(bx, list_loss_mean, label='loss_mean', linewidth=1, color='b', marker='o',
                          markerfacecolor='green', markersize=2)
