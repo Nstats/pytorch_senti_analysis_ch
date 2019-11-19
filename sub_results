@@ -103,22 +103,25 @@ title+content in split 1 but only content in other splits when not guoday's.
 -----------------------------------------LEADERBOARD B------------------------------------------
 
 ------------------single model results---------------
-to test roberta_large_hit+GRU_highway   train_v1    ba except eval  epoch3_bs128_lr5e-5     3   0.1
-to test roberta_large_hit+GRU_highway   train_v1    ba except eval  epoch3_bs128_lr2e-5     3   0.1 new data_loader
 0.7956  roberta_large_hit+guo_MLP       train_v1    ba except eval  epoch4_bs128_lr2e-5     3   0.1 new data_loader
-to test roberta_large_hit+guo_MLP       train_v1    ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
+0.8005  roberta_large_hit+guo_MLP       train_v1    ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
 
 0.7707  roberta_large_hit+GRU_highway   train_v1v2  ba except eval  epoch4_bs128_lr3e-5     3   0.1 new data_loaderv2+wrong data del
-to trainroberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr3e-5     3   0.1 new data_loaderv2+wrong data del
 0.8073  roberta_large_hit+guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr2e-5     5   0.1 new data_loaderv2+wrong data del
 0.8068  roberta_large_hit_guo_MLP       train_v1v2  ba except eval  epoch4_bs128_lr3e-5     5   0.1 new data_loaderv2+wrong data del+random drop
+
+0.7999  roberta_large_hit_guo_MLP       train_v2    ba except eval  epoch2_bs64_lr5e-6      3   0.1 conti new data_loaderv2+wrong data del+random drop 
+
 to train    my_roberta
 
 to train    RAdam   not good
 to train    GRU LSTM...roberta_large_hit roberta_large_brightmart
 
 -------------------ensemble results------------------
-probs:
-
+probs:0.8091    [8068, 8073]
+probs:0.8101    [7999, 8068, 8073]
+probs:0.8095    [7999, 8005, 8086, 8073]
+probs:0.8116    [8005, 8086, 8073]
+probs:0.8112    [8005, 8086, 8086, 8073, 8073]
 
 

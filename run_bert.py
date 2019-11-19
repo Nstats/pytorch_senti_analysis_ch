@@ -503,7 +503,7 @@ def main():
                 logger.info("  %s = %s", 'train loss', str(train_loss))
 
             # do evaluation totally 10 times during training stage.
-            if args.do_eval == 'yes' and (step+1) % int(num_train_optimization_steps/10) == 0 and step > 0:
+            if args.do_eval == 'yes' and (step+1) % int(num_train_optimization_steps/10) == 0 and step > 4500:
                 for file in ['dev.csv']:
                     inference_labels = []
                     gold_labels = []

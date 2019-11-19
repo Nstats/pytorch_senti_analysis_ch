@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # python ./data/preprocess_original_balanced_except_eval.py;
-python ./data/preprocess_original_balanced_except_eval_random_drop.py;
+# python ./data/preprocess_original_balanced_except_eval_random_drop_v2.py;
 export CUDA_VISIBLE_DEVICES=0
 for((i=0;i<3;i++));
 
@@ -14,7 +14,7 @@ python run_bert.py \
 --do_test 'yes' \
 --do_label_smoothing 'no' \
 --data_dir ./data/data_$i \
---output_dir ./v1v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr3e-5_guoday_balanced_except_eval/fold_$i \
+--output_dir ./v1v2_out_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr2e-5_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \
 --max_seq_length 512 \
 --split_num 5 \
@@ -26,10 +26,10 @@ python run_bert.py \
 --gradient_accumulation_steps 128 \
 --warmup_steps 0 \
 --per_gpu_eval_batch_size 32 \
---learning_rate 3e-5 \
+--learning_rate 2e-5 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 60000
+--train_steps 20000
 
 done
 

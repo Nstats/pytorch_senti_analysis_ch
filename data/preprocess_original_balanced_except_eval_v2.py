@@ -3,7 +3,7 @@ import os
 import re
 import random
 
-k = 3
+k = 5
 def balance_data(df):
     '''
     :param

@@ -8,15 +8,15 @@ for((i=0;i<3;i++));
 do
 python run_bert_continue.py \
 --model_type bert \
---model_name_or_path ./out_roberta_large_hit_new_dataloader_4epo_3split_128bs_lr2e-5_guoday_balanced_except_eval/fold_$i \
+--model_name_or_path ./out_roberta_large_hit_new_dataloader_3epo_3split_128bs_lr2e-5_GRU_highway_balanced_except_eval/fold_$i \
 --optimizer 'Adam' \
 --do_train 'yes' \
 --do_eval 'yes' \
 --do_test 'yes' \
---do_label_smoothing 'no' \
+--do_label_smoothing 'yes' \
 --data_dir ./data/data_$i \
---output_dir ./continue_on_v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_2epo_3split_64bs_lr5e-6_guoday_balanced_except_eval/fold_$i \
---classifier 'guoday' \
+--output_dir ./continue_on_v2_out_label_smoothing_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_3split_128bs_lr1e-6_GRU_highway_balanced_except_eval/fold_$i \
+--classifier 'GRU_highway' \
 --max_seq_length 512 \
 --split_num 3 \
 --lstm_hidden_size 512 \
@@ -30,7 +30,33 @@ python run_bert_continue.py \
 --learning_rate 1e-6 \
 --adam_epsilon 1e-6 \
 --weight_decay 0 \
---train_steps 8000
+--train_steps 11000;
+
+python run_bert_continue.py \
+--model_type bert \
+--model_name_or_path ./out_roberta_large_hit_new_dataloader_3epo_3split_128bs_lr2e-5_GRU_highway_balanced_except_eval/fold_$i \
+--optimizer 'Adam' \
+--do_train 'yes' \
+--do_eval 'yes' \
+--do_test 'yes' \
+--do_label_smoothing 'no' \
+--data_dir ./data/data_$i \
+--output_dir ./continue_on_v2_out_random_drop_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_3split_128bs_lr1e-6_GRU_highway_balanced_except_eval/fold_$i \
+--classifier 'GRU_highway' \
+--max_seq_length 512 \
+--split_num 3 \
+--lstm_hidden_size 512 \
+--lstm_layers 1 \
+--dropout 0.1 \
+--eval_steps 200 \
+--per_gpu_train_batch_size 128 \
+--gradient_accumulation_steps 64 \
+--warmup_steps 500 \
+--per_gpu_eval_batch_size 32 \
+--learning_rate 1e-6 \
+--adam_epsilon 1e-6 \
+--weight_decay 0 \
+--train_steps 11000
 
 done
 
