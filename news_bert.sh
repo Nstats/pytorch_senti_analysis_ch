@@ -5,14 +5,13 @@ python run_bert.py \
 --model_type bert \
 --model_name_or_path chinese_roberta_wwm_large_pytorch_hit \
 --optimizer 'Adam' \
---label_name 'label_usd_1' \
+--label_name 'label_eur_2' \
 --do_train 'yes' \
 --do_eval 'yes' \
 --do_test 'no' \
 --do_label_smoothing 'no' \
---target_label [0,1] \
 --data_dir ./data/news_data \
---output_dir ./out_news_classification_label_usd_1 \
+--output_dir ./out_news_classification_label_eur_2 \
 --classifier 'MLP' \
 --draw_loss_steps 10 \
 --max_seq_length 512 \

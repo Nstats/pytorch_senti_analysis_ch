@@ -195,7 +195,7 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
 
 def accuracy(out, labels):
     outputs = np.argmax(out, axis=1)
-    return f1_score(labels,outputs,labels=[0,1],average='macro')
+    return f1_score(labels,outputs,labels=[0,1,2],average='macro')
 
 def select_field(features, field):
     return [
