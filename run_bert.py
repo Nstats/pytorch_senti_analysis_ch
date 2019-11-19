@@ -193,9 +193,9 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
         else:
             tokens_b.pop()
 
-def accuracy(out, labels, target_label=[0,1,2]):
+def accuracy(out, labels):
     outputs = np.argmax(out, axis=1)
-    return f1_score(labels,outputs,labels=target_label,average='macro')
+    return f1_score(labels,outputs,labels=[0,1],average='macro')
 
 def select_field(features, field):
     return [
@@ -238,8 +238,6 @@ def main():
                         help='training steps to draw loss')
     parser.add_argument('--label_name', default='label', type=str, required=True,
                         help='label name in original train set index')
-    parser.add_argument('--target_label', default=[0,1,2], type=list, required=True,
-                        help='target_label=args.target_label')
 
     ## Other parameters
     parser.add_argument("--config_name", default="", type=str,
@@ -601,7 +599,7 @@ def main():
                         f.write('f1:'+str(f10) + ' ' + str(f11) + ' ' + str(f12) + '\n' + '\n')
 
                     eval_loss = eval_loss / nb_eval_steps
-                    eval_accuracy = accuracy(inference_logits, gold_labels,target_label=args.target_label)
+                    eval_accuracy = accuracy(inference_logits, gold_labels)
                     # draw loss.
                     eval_F1.append(round(eval_accuracy, 4))
                     ax.append(step)
@@ -701,7 +699,7 @@ def main():
             gold_labels = np.concatenate(gold_labels, 0)
             logits = np.concatenate(inference_labels, 0)
             if flag == 'dev':
-                print(flag, accuracy(logits, gold_labels,target_label=args.target_label))
+                print(flag, accuracy(logits, gold_labels))
             elif flag == 'test':
                 df = pd.read_csv(os.path.join(args.data_dir, file))
                 df['label_0'] = logits[:, 0]
