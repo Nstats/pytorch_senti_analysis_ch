@@ -704,8 +704,9 @@ def main():
                 df = pd.read_csv(os.path.join(args.data_dir, file))
                 df['label_0'] = logits[:, 0]
                 df['label_1'] = logits[:, 1]
-                df['label_2'] = logits[:, 2]
-                df[['id', 'label_0', 'label_1', 'label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False)
+                # df['label_2'] = logits[:, 2]
+                # df[['id', 'label_0', 'label_1', 'label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False)
+                df[['id', 'label_0', 'label_1']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False) 
             else:
                 raise ValueError('flag not in [dev, test]')
 
