@@ -43,6 +43,7 @@ from pytorch_transformers import AdamW, WarmupLinearSchedule
 from pytorch_transformers.tokenization_bert import BertTokenizer
 from itertools import cycle
 from radam import RAdam
+import time
 logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt = '%m/%d/%Y %H:%M:%S',
                     level = logging.INFO)
@@ -643,6 +644,7 @@ def main():
                     '''
 
     if args.do_test == 'yes':
+        start_time = time.time()
         print('___________________now testing for best eval f1 model_________________________')
         try:
             del model
@@ -709,6 +711,7 @@ def main():
                 df[['id', 'label_0', 'label_1']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False) 
             else:
                 raise ValueError('flag not in [dev, test]')
+        print('inference time usd = {}s'.format(time.time-start_time))
 
         '''
         print('___________________now testing for final model_________________________')
