@@ -2,13 +2,14 @@
 # python ./data/preprocess_original_balanced_except_eval.py;
 # python ./data/preprocess_original_balanced_except_eval_random_drop_v2.py;
 export CUDA_VISIBLE_DEVICES=0
-for((i=0;i<3;i++));
+for((i=1;i<2;i++));
 
 do
 python run_bert.py \
 --model_type bert \
 --model_name_or_path chinese_roberta_wwm_large_pytorch_hit \
 --optimizer 'Adam' \
+--label_name 'label' \
 --do_train 'no' \
 --do_eval 'no' \
 --do_test 'yes' \
@@ -16,6 +17,7 @@ python run_bert.py \
 --data_dir ./data/data_$i \
 --output_dir ./v1v2_out_roberta_large_hit_new_dataloaderv2_del_w_data_4epo_5split_128bs_lr2e-5_guoday_balanced_except_eval/fold_$i \
 --classifier 'guoday' \
+--draw_loss_steps 500 \
 --max_seq_length 512 \
 --split_num 5 \
 --lstm_hidden_size 512 \

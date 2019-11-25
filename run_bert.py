@@ -654,8 +654,10 @@ def main():
         args.do_train = 'no'
         model = BertForSequenceClassification.from_pretrained(os.path.join(args.output_dir, "pytorch_model.bin"),
                                                               args, config=config)
-        if args.fp16:
-            model.half()
+        model.half()
+        for layer in model.modules():
+            if isinstance(layer, torch.nn.modules.batchnorm._BatchNorm):
+                layer.float()
         model.to(device)
         if args.local_rank != -1:
             try:
@@ -706,12 +708,12 @@ def main():
                 df = pd.read_csv(os.path.join(args.data_dir, file))
                 df['label_0'] = logits[:, 0]
                 df['label_1'] = logits[:, 1]
-                # df['label_2'] = logits[:, 2]
-                # df[['id', 'label_0', 'label_1', 'label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False)
-                df[['id', 'label_0', 'label_1']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False) 
+                df['label_2'] = logits[:, 2]
+                df[['id', 'label_0', 'label_1', 'label_2']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False)
+                # df[['id', 'label_0', 'label_1']].to_csv(os.path.join(args.output_dir, "sub.csv"), index=False) 
             else:
                 raise ValueError('flag not in [dev, test]')
-        print('inference time usd = {}s'.format(time.time-start_time))
+        print('inference time usd = {}s'.format(time.time()-start_time))
 
         '''
         print('___________________now testing for final model_________________________')
